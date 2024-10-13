@@ -1,5 +1,6 @@
-from tree_sitter import Language, Parser
 import tree_sitter_python
+from tree_sitter import Language, Parser
+
 
 def get_contents(text_data: bytes, start: tuple, end: tuple) -> str:
     """
@@ -15,9 +16,11 @@ def get_contents(text_data: bytes, start: tuple, end: tuple) -> str:
     """
     text = text_data.decode('utf-8')
     lines = text.splitlines()
-    if start[0] < 0 or end[0] < 0 or start[0] >= len(lines) or end[0] >= len(lines):
+    if start[0] < 0 or end[0] < 0 or start[0] >= len(
+            lines) or end[0] >= len(lines):
         raise ValueError("Invalid line number")
-    if start[1] < 0 or end[1] < 0 or start[1] > len(lines[start[0]]) or end[1] > len(lines[end[0]]):
+    if start[1] < 0 or end[1] < 0 or start[1] > len(
+            lines[start[0]]) or end[1] > len(lines[end[0]]):
         raise ValueError("Invalid line position")
     result = ""
     if start[0] == end[0]:
@@ -29,6 +32,7 @@ def get_contents(text_data: bytes, start: tuple, end: tuple) -> str:
         result += "\n" + lines[end[0]][:end[1]]
     return result
 
+
 def traverse_top_level(tree):
     "Yields children of translation_unit in syntax tree"
     cursor = tree.walk()
@@ -38,11 +42,15 @@ def traverse_top_level(tree):
         if not cursor.goto_next_sibling():
             break
 
-def get_tree_funcs(src, tree):
-    return [get_contents(src, node.start_point, node.end_point) for node in traverse_top_level(tree) if node.type=="function_definition"]
+
+def get_definitions(src, tree, definition_type):
+    return [get_contents(src, node.start_point, node.end_point)
+            for node in traverse_top_level(tree) if node.type == definition_type]
+
 
 def parse_code_file(filepath):
-    language = Language(tree_sitter_python.language()) #TODO support other languages
+    # TODO support other languages
+    language = Language(tree_sitter_python.language())
     parser = Parser(language)
     with open(filepath, "rb") as f:
         src = f.read()
