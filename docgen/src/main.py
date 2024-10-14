@@ -34,7 +34,7 @@ def print_stats(result):
     stats = get_stats(result)
     print("# Stats")
     print("classes:", stats["class_count"])
-    print("  methods:", stats["class_count"])
+    print("  methods:", stats["method_count"])
     print("    params:", stats["method_arg_count"])
     print("functions:", stats["func_count"])
     print("  params:", stats["func_arg_count"])
