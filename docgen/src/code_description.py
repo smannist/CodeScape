@@ -1,4 +1,5 @@
 from typing_extensions import Annotated, TypedDict, List, Optional, Union
+from langchain_core.prompts import ChatPromptTemplate
 from parsing import parse_code_file, get_definitions
 
 
@@ -32,21 +33,28 @@ class FullDescription(TypedDict):
 
 
 def describe_file_funcs(llm, filepath):
-    (src, tree) = parse_code_file(filepath)
+    return describe_funcs(llm, parse_code_file(filepath))
+
+def describe_funcs(llm, parsed_code):
+    (src, tree) = parsed_code
+    system = "Your task is to describe functions in source code. Always include the arguments of the function if present."
+    prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{input}")])
 
     # The with_structured_output internally does llm tool use, which fails with some inputs, like parsing.py
     # however it seems to work with the groq models that are made for tool use
     # related issue:
     # https://github.com/langchain-ai/langchain/discussions/24309
-    func_llm = llm.with_structured_output(FunctionDescription)
+    func_llm = prompt | llm.with_structured_output(FunctionDescription)
     return [func_llm.invoke(func) for func in get_definitions(src, tree, definition_type="function_definition")]
 
 
 def describe_file_classes(llm, filepath):
-    (src, tree) = parse_code_file(filepath)
+    return describe_classes(llm, parse_code_file(filepath))
+
+def describe_classes(llm, parsed_code):
+    (src, tree) = parsed_code
     func_llm = llm.with_structured_output(ClassDescription)
     return [func_llm.invoke(func) for func in get_definitions(src, tree, definition_type="class_definition")]
-
 
 def describe_file(llm, filepath):
     (src, tree) = parse_code_file(filepath)
@@ -62,3 +70,11 @@ def describe_file(llm, filepath):
         class_desc) for class_desc in classes]
 
     return class_descriptions + func_descriptions
+
+
+def describe_file_(llm, filepath):
+    parsed_code = parse_code_file(filepath)
+    classes = [{"type": "class", "description": desc} for desc in describe_classes(llm, parsed_code)]
+    funcs = [{"type": "function", "description": desc} for desc in describe_funcs(llm, parsed_code)]
+    return classes + funcs
+
