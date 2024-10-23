@@ -1,5 +1,7 @@
 from typing_extensions import Annotated, TypedDict, List, Optional, Union
 from langchain_core.prompts import ChatPromptTemplate
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.documents import Document
 from parsing import parse_code_file, get_definitions
 
 
@@ -8,6 +10,7 @@ class FileDoc():
 
     def __init__(self, **kwargs):
         self.name = kwargs.get("name","") # String
+        self.overview = kwargs.get("overview", "") # String
         self.functions = kwargs.get("funcs", []) # List[FunctionDescription]
         self.classes = kwargs.get("classes", []) # List[ClassDescription]
     
@@ -26,6 +29,7 @@ class FileDoc():
     def as_dict(self):
         return {
             'name': self.name,
+            'overview': self.overview,
             'functions': self.functions,
             'classes': self.classes,
         }
@@ -84,6 +88,15 @@ def describe_classes(llm, parsed_code):
     func_llm = llm.with_structured_output(ClassDescription)
     return [func_llm.invoke(func) for func in get_definitions(src, tree, definition_type="class_definition")]
 
+def generate_file_overview(llm, classes, funcs):
+    prompt = ChatPromptTemplate.from_messages(
+        [("system", "Given the following class and function descriptions, describe the purpose of this source code file. Start your answer with 'This file':\n\n{context}")]
+    )
+    chain = create_stuff_documents_chain(llm, prompt)
+    func_docs = [Document(page_content="function: " + str(func)) for func in funcs]
+    class_docs = [Document(page_content="class: " + str(class_)) for class_ in classes]
+    return chain.invoke({"context": class_docs + func_docs})
+
 def describe_file(llm, filepath) -> FileDoc:
     (src, tree) = parse_code_file(filepath)
 
@@ -96,13 +109,15 @@ def describe_file(llm, filepath) -> FileDoc:
         func_desc)["description"] for func_desc in funcs]
     class_descriptions = [structured_llm.invoke(
         class_desc)["description"] for class_desc in classes]
-
-    return FileDoc(name=filepath, classes=class_descriptions, funcs=func_descriptions)
+    
+    overview = generate_file_overview(llm, class_descriptions, func_descriptions)
+    return FileDoc(name=filepath, classes=class_descriptions, funcs=func_descriptions, overview=overview)
 
 
 def describe_file_(llm, filepath) -> FileDoc:
     parsed_code = parse_code_file(filepath)
     classes = describe_classes(llm, parsed_code)
     funcs = describe_funcs(llm, parsed_code)
-    return FileDoc(name=filepath, classes=classes, funcs=funcs)
+    overview = generate_file_overview(llm, classes, funcs)
+    return FileDoc(name=filepath, classes=classes, funcs=funcs, overview=overview)
 
