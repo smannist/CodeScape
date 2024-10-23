@@ -56,14 +56,11 @@ def save_graph_json(graph, filepath):
 
 if __name__ == "__main__": # For testing
     from util import load_json
-    from glob import glob
 
-    def get_docs_by_field(file_docs, field):
-        return [doc["description"][field] for file in file_docs for doc in file]
-
-    test_input = [load_json(path) for path in glob('*.json')]
-    keys = get_docs_by_field(test_input, "name")
-    values = get_docs_by_field(test_input, "description")
+    test_input = load_json("output.json")
+    test_input = test_input["classes"] + test_input["functions"]
+    keys = [json["name"] for json in test_input]
+    values = [json["description"] for json in test_input]
 
     distances = get_document_distances(keys, values, 50)
     g = build_similarity_graph(distances, 0.8)

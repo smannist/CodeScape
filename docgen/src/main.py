@@ -6,38 +6,13 @@ from langchain_groq import ChatGroq
 from langchain.globals import set_debug
 from dotenv import load_dotenv
 
-def get_stats(result):
-    funcs = []
-    classes = []
-    result_contains = lambda key: len([x for x in result if key in x]) > 0
-    if result_contains("type"):
-        # FullDescription
-        classes = [x for x in result if x["type"] == "class"]
-        funcs = [x for x in result if x["type"] == "function"]
-    if result_contains("functions"):
-        # ClassDescription
-        classes = result
-    else:
-        # FunctionDescription
-        funcs = result
-    methods = [f for c in classes if "functions" in c for f in c.get("functions", [])]
-    func_arg_count = sum([len(f["params"]) for f in funcs if "params" in f])
-    method_arg_count = sum([len(f["params"]) for f in methods if "params" in f])
-    return {"func_arg_count":func_arg_count,
-            "method_arg_count":method_arg_count,
-            "class_count": len(classes),
-            "method_count": len(methods),
-            "func_count": len(funcs)
-            }
-
-def print_stats(result):
-    stats = get_stats(result)
+def print_stats(filedoc):
     print("# Stats")
-    print("classes:", stats["class_count"])
-    print("  methods:", stats["method_count"])
-    print("    params:", stats["method_arg_count"])
-    print("functions:", stats["func_count"])
-    print("  params:", stats["func_arg_count"])
+    print("classes:", len(filedoc.classes))
+    print("  methods:", len(filedoc.get_methods()))
+    print("    params:", filedoc.count_method_params())
+    print("functions:", len(filedoc.functions))
+    print("  params:", filedoc.count_function_params())
 
 
 load_dotenv()
@@ -56,6 +31,6 @@ if __name__ == "__main__":
     result = describe_file_(llm, sys.argv[1])
 
     filename = "output.json"
-    save_to_json(result, filename)
+    save_to_json(result.as_dict(), filename)
     print_stats(result)
     print(f"\nFinished and saved to {filename}")
