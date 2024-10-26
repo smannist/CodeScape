@@ -1,39 +1,8 @@
 from typing_extensions import Annotated, TypedDict, List, Optional, Union
 from langchain_core.prompts import ChatPromptTemplate
-from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.documents import Document
 from parsing import parse_code_file, get_definitions
-
-
-class FileDoc():
-    """Contains the documentation for a single source code file"""
-
-    def __init__(self, **kwargs):
-        self.name = kwargs.get("name","") # String
-        self.overview = kwargs.get("overview", "") # String
-        self.functions = kwargs.get("funcs", []) # List[FunctionDescription]
-        self.classes = kwargs.get("classes", []) # List[ClassDescription]
-    
-    def get_methods(self):
-        return [m for c in self.classes if "functions" in c for m in c.get("functions", [])]
-
-    def __count_params(functions):
-        return sum([len(func["params"]) for func in functions if "params" in func])
-
-    def count_method_params(self):
-        return FileDoc.__count_params(self.get_methods())
-
-    def count_function_params(self):
-        return FileDoc.__count_params(self.functions)
-
-    def as_dict(self):
-        return {
-            'name': self.name,
-            'overview': self.overview,
-            'functions': self.functions,
-            'classes': self.classes,
-        }
-
+from code_documentation import FileDoc
+from overview import generate_file_overview
 
 class FunctionParam(TypedDict):
     name: Annotated[str, ..., "variable identifier"]
@@ -79,7 +48,6 @@ def describe_funcs(llm, parsed_code):
     func_llm = prompt | llm.with_structured_output(FunctionDescription)
     return [func_llm.invoke(func) for func in get_definitions(src, tree, definition_type="function_definition")]
 
-
 def describe_file_classes(llm, filepath):
     return describe_classes(llm, parse_code_file(filepath))
 
@@ -87,15 +55,6 @@ def describe_classes(llm, parsed_code):
     (src, tree) = parsed_code
     func_llm = llm.with_structured_output(ClassDescription)
     return [func_llm.invoke(func) for func in get_definitions(src, tree, definition_type="class_definition")]
-
-def generate_file_overview(llm, classes, funcs):
-    prompt = ChatPromptTemplate.from_messages(
-        [("system", "Given the following class and function descriptions, describe the purpose of this source code file. Start your answer with 'This file':\n\n{context}")]
-    )
-    chain = create_stuff_documents_chain(llm, prompt)
-    func_docs = [Document(page_content="function: " + str(func)) for func in funcs]
-    class_docs = [Document(page_content="class: " + str(class_)) for class_ in classes]
-    return chain.invoke({"context": class_docs + func_docs})
 
 def describe_file(llm, filepath) -> FileDoc:
     (src, tree) = parse_code_file(filepath)
@@ -109,10 +68,9 @@ def describe_file(llm, filepath) -> FileDoc:
         func_desc)["description"] for func_desc in funcs]
     class_descriptions = [structured_llm.invoke(
         class_desc)["description"] for class_desc in classes]
-    
+
     overview = generate_file_overview(llm, class_descriptions, func_descriptions)
     return FileDoc(name=filepath, classes=class_descriptions, funcs=func_descriptions, overview=overview)
-
 
 def describe_file_(llm, filepath) -> FileDoc:
     parsed_code = parse_code_file(filepath)
@@ -120,4 +78,3 @@ def describe_file_(llm, filepath) -> FileDoc:
     funcs = describe_funcs(llm, parsed_code)
     overview = generate_file_overview(llm, classes, funcs)
     return FileDoc(name=filepath, classes=classes, funcs=funcs, overview=overview)
-
