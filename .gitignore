@@ -1,0 +1,5 @@
+__pycache__
+*.swp
+.env
+output.json
+test_large.py

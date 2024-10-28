@@ -1,0 +1,6 @@
+langchain-groq
+tree-sitter>=0.23.0
+tree-sitter-python
+chromadb
+networkx
+matplotlib
