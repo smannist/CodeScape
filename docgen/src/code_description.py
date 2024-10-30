@@ -56,25 +56,13 @@ def describe_classes(llm, parsed_code):
     func_llm = llm.with_structured_output(ClassDescription)
     return [func_llm.invoke(func) for func in get_definitions(src, tree, definition_type="class_definition")]
 
-def describe_file(llm, filepath) -> FileDoc:
-    (src, tree) = parse_code_file(filepath)
-
-    funcs = get_definitions(src, tree, definition_type="function_definition")
-    classes = get_definitions(src, tree, definition_type="class_definition")
-
-    structured_llm = llm.with_structured_output(FullDescription)
-
-    func_descriptions = [structured_llm.invoke(
-        func_desc)["description"] for func_desc in funcs]
-    class_descriptions = [structured_llm.invoke(
-        class_desc)["description"] for class_desc in classes]
-
-    overview = generate_file_overview(llm, class_descriptions, func_descriptions)
-    return FileDoc(name=filepath, classes=class_descriptions, funcs=func_descriptions, overview=overview)
-
-def describe_file_(llm, filepath) -> FileDoc:
+def describe_file(llm, filepath, include_funcs=True, include_classes=True, include_overview=True) -> FileDoc:
     parsed_code = parse_code_file(filepath)
-    classes = describe_classes(llm, parsed_code)
-    funcs = describe_funcs(llm, parsed_code)
-    overview = generate_file_overview(llm, classes, funcs)
-    return FileDoc(name=filepath, classes=classes, funcs=funcs, overview=overview)
+    filedoc_args = {"name": filepath, "classes": [], "funcs": []}
+    if include_classes:
+        filedoc_args["classes"] = describe_classes(llm, parsed_code)
+    if include_funcs:
+        filedoc_args["funcs"] = describe_funcs(llm, parsed_code)
+    if include_overview:
+        filedoc_args["overview"] = generate_file_overview(llm, filedoc_args["classes"], filedoc_args["funcs"])
+    return FileDoc(**filedoc_args)
