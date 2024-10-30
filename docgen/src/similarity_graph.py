@@ -47,6 +47,8 @@ def plot_graph(graph):
 
     
 def graph_to_dict(graph):
+    if not graph:
+        return {}
     edges = {}
     for n, nbrs in graph.adj.items():
         neighbours = []
