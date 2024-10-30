@@ -36,6 +36,7 @@ def parse_cli_args():
             help="path to the json file that the tool will generate")
     parser.add_argument("-t", "--types", nargs="+", default=["all"], choices=doc_types,
             help="list of documentation types that will be added to output")
+    parser.add_argument("--plot-graph", action="store_true", help="create a plot of generated code_graph")
     
     args = vars(parser.parse_args())
     args["types"] = validate_doc_types(args["types"])

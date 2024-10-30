@@ -5,7 +5,7 @@ from code_documentation import RepoDoc
 from overview import generate_repository_overview
 from util import save_to_json, load_json, list_files_if
 from cli import parse_cli_args
-from similarity_graph import create_code_graph
+from similarity_graph import create_code_graph, plot_graph
 from langchain_groq import ChatGroq
 from langchain.globals import set_debug
 from dotenv import load_dotenv
@@ -46,5 +46,8 @@ if __name__ == "__main__":
     save_to_json(repo_doc.as_dict(), cli_args["output"])
     print_stats(repo_doc)
     print(f"\nFinished and saved to {cli_args['output']}")
+    if cli_args["plot_graph"]:
+       plot_graph(repo_doc.code_graph) 
+
 
 
