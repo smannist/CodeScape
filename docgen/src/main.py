@@ -1,4 +1,3 @@
-import sys
 import os
 from code_description import describe_file_funcs, describe_file_classes, describe_file
 from code_documentation import RepoDoc

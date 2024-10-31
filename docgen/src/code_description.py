@@ -1,38 +1,62 @@
-from typing_extensions import Annotated, TypedDict, List, Optional, Union
+from typing_extensions import Annotated, TypedDict, List, Optional
 from langchain_core.prompts import ChatPromptTemplate
 from parsing import parse_code_file, get_definitions
 from code_documentation import FileDoc
 from overview import generate_file_overview
+from fewshots import class_struct_example
 
 class Param(TypedDict):
-    name: Annotated[str, ..., "variable identifier"]
-    description: Annotated[str, ..., "purpose of the variable"]
+    name: Annotated[
+        str,
+        ...,
+        "variable identifier"
+    ]
+    description: Annotated[
+        str,
+        ...,
+        "purpose of the variable"
+    ]
 
 
 class FunctionDescription(TypedDict):
-    name: Annotated[str, ..., "identifier of the function"]
+    name: Annotated[
+        str,
+        ...,
+        "identifier of the function"
+    ]
     params: Annotated[
         Optional[List[Param]],
-        [], "the arguments passed to the function, always include function params if present"
+        [],
+        "the arguments passed to the function"
     ]
     description: Annotated[
-        str, ...,
+        str,
+        ...,
         "short description of what the function does (<5 sentences)"
     ]
     returns: Annotated[
-        Optional[str], ...,
-        "the value returned by the function and one sentence description in format "
-        "(value: description), for example: 'dict: A dictionary representation of "
-        "the RepoDoc object' or 'int: the number of parameters in a list of functions'"
+        Optional[str],
+        ...,
+        "A maximum of 70 character long description of the value returned by the function. "
     ]
 
 
 class ClassDescription(TypedDict):
-    name: Annotated[str, ..., "identifier of the class"]
-    functions: Annotated[Optional[List[FunctionDescription]], [
-    ], "the functions defined in the class, always including function params if present"]
-    description: Annotated[str, ...,
-                           "short description of what the class does (<5 sentences)"]
+    name: Annotated[
+        str,
+        ...,
+        "identifier of the class"
+    ]
+    methods: Annotated[
+        Optional[List[FunctionDescription]],
+        [],
+        "the methods defined in the class, including their parameters and return values, if present"
+    ]
+    description: Annotated[
+        str,
+        ...,
+        "short description of what the class does (<5 sentences)"
+    ]
 
 
 def describe_file_funcs(llm, filepath):
@@ -55,8 +79,11 @@ def describe_file_classes(llm, filepath):
 
 def describe_classes(llm, parsed_code):
     (src, tree) = parsed_code
-    func_llm = llm.with_structured_output(ClassDescription)
-    return [func_llm.invoke(func) for func in get_definitions(src, tree, definition_type="class_definition")]
+    system = class_struct_example
+    prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{input}")])
+    few_shot_llm = prompt | llm.with_structured_output(ClassDescription)
+    return [few_shot_llm.invoke({'input': func}) for func in get_definitions(src, tree, definition_type="class_definition")]
+
 
 def describe_file(llm, filepath, include_funcs=True, include_classes=True, include_overview=True) -> FileDoc:
     parsed_code = parse_code_file(filepath)
