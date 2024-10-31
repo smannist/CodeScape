@@ -5,6 +5,9 @@ from util import save_to_json
 
 def get_document_distances(doc_ids, docs, max_result_count):
     """Returns a dictionary where each doc_id has a list of (other_id, distance_from_other_id) tuples"""
+    if len(doc_ids) == 0 or len(docs) == 0:
+        return {}
+
     chroma_client = chromadb.Client()
     db = chroma_client.create_collection(name="code-descriptions")
     db.add(documents=docs, ids=doc_ids)
@@ -42,28 +45,25 @@ def plot_graph(graph):
     nx.draw(graph, pos=pos, with_labels=True)
     plt.show()
 
-
-def save_graph_json(graph, filepath):
+    
+def graph_to_dict(graph):
+    if not graph:
+        return {}
     edges = {}
     for n, nbrs in graph.adj.items():
         neighbours = []
         for nbr, eattr in nbrs.items():
             neighbours.append({"to": nbr, "dist": eattr["weight"]})
         edges[n] = neighbours
-    json = {"nodes" : list(graph.nodes), "edges" : edges}
-    save_to_json(json, filepath)
+    return {"nodes" : list(graph.nodes), "edges" : edges}
 
 
-if __name__ == "__main__": # For testing
-    from util import load_json
-
-    test_input = load_json("output.json")
-    test_input = test_input["classes"] + test_input["functions"]
-    keys = [json["name"] for json in test_input]
-    values = [json["description"] for json in test_input]
-
+def create_code_graph(filedocs):
+    funcs_and_classes = []
+    for doc in filedocs:
+        funcs_and_classes.extend(doc.classes + doc.functions)
+    keys = [code["name"] for code in funcs_and_classes]
+    values = [code["description"] for code in funcs_and_classes]
     distances = get_document_distances(keys, values, 50)
-    g = build_similarity_graph(distances, 0.8)
-    save_graph_json(g, "graph.json")
-    print("saved graph as graph.json")
-    plot_graph(g)
+    return build_similarity_graph(distances, 0.8)
+

@@ -1,3 +1,4 @@
+from similarity_graph import graph_to_dict
 
 class FileDoc():
     """Contains the documentation for a single source code file"""
@@ -26,4 +27,19 @@ class FileDoc():
             'overview': self.overview,
             'functions': self.functions,
             'classes': self.classes,
+        }
+
+class RepoDoc():
+    "Contains the documentation for the whole repo"
+
+    def __init__(self, **kwargs):
+        self.overview = kwargs.get("overview", "") # String
+        self.files = kwargs.get("files", []) # List[FileDoc]
+        self.code_graph = kwargs.get("code_graph", None) # networkx.Graph
+
+    def as_dict(self):
+        return {
+            "overview": self.overview,
+            "files": [file.as_dict() for file in self.files],
+            "code_graph": graph_to_dict(self.code_graph),
         }
