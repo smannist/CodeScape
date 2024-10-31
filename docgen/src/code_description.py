@@ -4,17 +4,27 @@ from parsing import parse_code_file, get_definitions
 from code_documentation import FileDoc
 from overview import generate_file_overview
 
-class FunctionParam(TypedDict):
+class Param(TypedDict):
     name: Annotated[str, ..., "variable identifier"]
     description: Annotated[str, ..., "purpose of the variable"]
 
 
 class FunctionDescription(TypedDict):
     name: Annotated[str, ..., "identifier of the function"]
-    params: Annotated[Optional[List[FunctionParam]],
-                      [], "the arguments passed to the function"]
-    description: Annotated[str, ...,
-                           "short description of what the function does (<5 sentences)"]
+    params: Annotated[
+        Optional[List[Param]],
+        [], "the arguments passed to the function, always include function params if present"
+    ]
+    description: Annotated[
+        str, ...,
+        "short description of what the function does (<5 sentences)"
+    ]
+    returns: Annotated[
+        Optional[str], ...,
+        "the value returned by the function and one sentence description in format "
+        "(value: description), for example: 'dict: A dictionary representation of "
+        "the RepoDoc object' or 'int: the number of parameters in a list of functions'"
+    ]
 
 
 class ClassDescription(TypedDict):
@@ -23,14 +33,6 @@ class ClassDescription(TypedDict):
     ], "the functions defined in the class, always including function params if present"]
     description: Annotated[str, ...,
                            "short description of what the class does (<5 sentences)"]
-
-
-class FullDescription(TypedDict):
-    type: Annotated[str, ...,
-                    "'function' or 'class' to identify the description type, "
-                    "always including the whole description, function descriptions "
-                    "as well as function params if present"]
-    description: Union[FunctionDescription, ClassDescription]
 
 
 def describe_file_funcs(llm, filepath):
