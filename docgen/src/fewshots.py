@@ -1,13 +1,15 @@
 class_struct_example = """
 
    Your task is to describe the given class, including all of its class methods regardless of visibility (i.e., __count_elements should be included) from the provided source code.
-    - Do **not** include constructors inherited from a superclass. 
+    - Do **not** include constructors inherited from a superclass.
     - Only include methods that are explicitly defined in the class.
-    - Do not add any additional fields.
+    - Do not add any additional fields such as 'type' or 'default' in your description.
     - Do not treat attributes as parameters.
     - If a method returns a print statement, do not include a "returns" field in its description.
 
-    Here are some example descriptions of Python classes and their methods:
+    Here are some example Python classes and returned descriptions:
+
+    Given class:
 
     class LibraryDoc:
 
@@ -72,7 +74,7 @@ class_struct_example = """
                         "description": "String specifying the count type to return; either 'module' for module count or 'function' for function count."
                     }}
                 ],
-                "returns": "Total number of functions or modules"
+                "returns": "The total number of functions or modules"
             }},
         ]
     }}
@@ -98,7 +100,7 @@ class_struct_example = """
 
     Given class:
 
-    class Token:
+    class Token(TypedDict):
         loc: L
         type: str | None
         text: str
@@ -107,7 +109,7 @@ class_struct_example = """
 
     {{
     "name": "Token",
-    "description": "Represents a token with location, type, and text attributes, typically used in parsing or lexical analysis.",
+    "description": "A TypedDict representing a token with attributes for location, type, and text, typically used in parsing or lexical analysis.",
     }}
 
     """
