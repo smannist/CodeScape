@@ -1,150 +1,113 @@
 class_struct_example = """
 
-    Your task is to describe the given class, including all of the class methods, from the given source code. Do not add any additional fields. Do not include constructors from inherited classes.
-    Return the description in JSON format.
+   Your task is to describe the given class, including all of its class methods regardless of visibility (i.e., __count_elements should be included) from the provided source code.
+    - Do **not** include constructors inherited from a superclass. 
+    - Only include methods that are explicitly defined in the class.
+    - Do not add any additional fields.
+    - Do not treat attributes as parameters.
+    - If a method returns a print statement, do not include a "returns" field in its description.
 
     Here are some example descriptions of Python classes and their methods:
 
-    Given class:
-
-    class RepoDoc():
+    class LibraryDoc:
 
         def __init__(self, **kwargs):
-            self.overview = kwargs.get("overview", "") # String
-            self.files = kwargs.get("files", []) # List[FileDoc]
-            self.code_graph = kwargs.get("code_graph", None) # networkx.Graph
+            self.name = kwargs.get("name", "")
+            self.modules = kwargs.get("modules", [])
+            self.license = kwargs.get("license", "MIT")
 
         def as_dict(self):
             return {{
-                "overview": self.overview,
-                "files": [file.as_dict() for file in self.files],
-                "code_graph": graph_to_dict(self.code_graph),
+                "name": self.name,
+                "modules": [module.as_dict() for module in self.modules],
+                "license": self.license,
             }}
+
+        def __count_elements(self):
+            module_count = len(self.modules)
+            function_count = sum(len(module.functions) for module in self.modules)
+            if count_type == "module":
+                return module_count
+            elif count_type == "function":
+                return function_count
+            else:
+                raise ValueError("Invalid count_type specified. Use 'module' or 'function'.")
 
     Your description:
 
     {{
-    "name": "RepoDoc",
-    "description": "Contains the documentation for the whole repo",
-    "methods": [
-        {{
-        "name": "__init__",
-        "description": "Initializes the RepoDoc class with optional parameters",
-        "params": [
+        "name": "LibraryDoc",
+        "description": "Stores documentation details for a library, including modules and their functions.",
+        "methods": [
             {{
-            "name": "overview",
-            "description": "String parameter for the overview of the repo"
+                "name": "__init__",
+                "description": "Initializes the LibraryDoc class with optional parameters.",
+                "params": [
+                    {{
+                        "name": "name",
+                        "description": "String representing the library's name."
+                    }},
+                    {{
+                        "name": "modules",
+                        "description": "List of ModuleDoc objects representing the modules in the library."
+                    }},
+                    {{
+                        "name": "license",
+                        "description": "String representing the type of license used by the library."
+                    }}
+                ],
+                "returns": "An instance of LibraryDoc"
             }},
             {{
-            "name": "files",
-            "description": "List of FileDoc objects representing the files in the repo"
+                "name": "as_dict",
+                "description": "Converts the LibraryDoc instance into a dictionary format.",
+                "returns": "A dictionary representation of the LibraryDoc instance."
             }},
             {{
-            "name": "code_graph",
-            "description": "networkx.Graph object representing the code structure"
-            }}
-        ],
-        "returns": "An instance of RepoDoc"
-        }},
-        {{
-        "name": "as_dict",
-        "description": "Converts the RepoDoc instance into a dictionary format",
-        "returns": "A dictionary representation of the RepoDoc instance"
-        }}
-    ]
+                "name": "__count_elements",
+                "description": "Counts key elements within the LibraryDoc instance, returning an integer count based on the specified count_type ('module' or 'function').",
+                "params": [
+                    {{
+                        "name": "count_type",
+                        "description": "String specifying the count type to return; either 'module' for module count or 'function' for function count."
+                    }}
+                ],
+                "returns": "Total number of functions or modules"
+            }},
+        ]
     }}
 
     Given class:
 
-    class FileDoc():
+    class HelloWorld:
+        def hello(self):
+            print("Hello, World!")
+    
+    Your description:
 
-    def __init__(self, **kwargs):
-        self.name = kwargs.get("name","") # String
-        self.overview = kwargs.get("overview", "") # String
-        self.functions = kwargs.get("funcs", []) # List[FunctionDescription]
-        self.classes = kwargs.get("classes", []) # List[ClassDescription]
-
-    def get_methods(self):
-        return [m for c in self.classes if "methods" in c for m in c.get("methods", [])]
-
-    def __count_params(functions):
-        return sum([len(func["params"]) for func in functions if "params" in func])
-
-    def count_method_params(self):
-        return FileDoc.__count_params(self.get_methods())
-
-    def count_function_params(self):
-        return FileDoc.__count_params(self.functions)
-
-    def as_dict(self):
-        return {{
-            'name': self.name,
-            'overview': self.overview,
-            'functions': self.functions,
-            'classes': self.classes,
+    {{
+    "name": "HelloWorld",
+    "description": "A simple class that prints a greeting",
+    "methods": [
+        {{
+        "name": "hello",
+        "description": "Prints a hello message"
         }}
+      ]
+    }}
+
+    Given class:
+
+    class Token:
+        loc: L
+        type: str | None
+        text: str
 
     Your description:
 
     {{
-      "name": "FileDoc",
-      "description": "Contains the documentation for a single source code file",
-      "methods": [
-        {{
-          "name": "__init__",
-          "description": "Initializes the FileDoc class with optional parameters",
-          "params": [
-            {{
-              "name": "name",
-              "description": "String parameter for the name of the file"
-            }},
-            {{
-              "name": "overview",
-              "description": "String parameter for the overview of the file"
-            }},
-            {{
-              "name": "functions",
-              "description": "List of FunctionDescription objects representing the functions in the file"
-            }},
-            {{
-              "name": "classes",
-              "description": "List of ClassDescription objects representing the classes in the file"
-            }}
-          ],
-          "returns": "An instance of FileDoc"
-        }},
-        {{
-          "name": "get_methods",
-          "description": "Returns a list of methods from the classes in the file",
-          "returns": "A list of methods from the classes in the file"
-        }},
-        {{
-          "name": "__count_params",
-          "description": "Counts the number of parameters in a list of functions or methods",
-          "params": [
-            {{
-              "name": "functions",
-              "description": "List of functions or methods"
-            }}
-          ],
-          "returns": "The total number of parameters"
-        }},
-        {{
-          "name": "count_method_params",
-          "description": "Counts the number of parameters in the methods of the classes in the file",
-          "returns": "The total number of parameters"
-        }},
-        {{
-          "name": "count_function_params",
-          "description": "Counts the number of parameters in the functions in the file",
-          "returns": "The total number of parameters"
-        }},
-        {{
-          "name": "as_dict",
-          "description": "Converts the FileDoc instance into a dictionary format",
-          "returns": "A dictionary representation of the FileDoc instance"
-        }}
-      ]
-    }},
+    "name": "Token",
+    "description": "Represents a token with location, type, and text attributes, typically used in parsing or lexical analysis.",
+    }}
 
     """

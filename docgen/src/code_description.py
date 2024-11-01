@@ -37,7 +37,7 @@ class FunctionDescription(TypedDict):
     returns: Annotated[
         Optional[str],
         ...,
-        "A maximum of 70 character long description of the value returned by the function. "
+        "A maximum of 70 character long description of the value returned by the function"
     ]
 
 
