@@ -1,10 +1,13 @@
 class_struct_example = """
 
    Your task is to describe the given class, including all of its class methods regardless of visibility (i.e., __count_elements should be included) from the provided source code.
+   Return your answer as JSON.
+
     - Do **not** include constructors inherited from a superclass.
     - Only include methods that are explicitly defined in the class.
     - Do not add any additional fields such as 'type' or 'default' in your description.
     - Do not treat attributes as parameters.
+    - Do not include any of the given examples in your final JSON output.
     - If a method returns a print statement, do not include a "returns" field in its description.
 
     Here are some example Python classes and returned descriptions:

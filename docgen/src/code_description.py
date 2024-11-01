@@ -81,7 +81,7 @@ def describe_classes(llm, parsed_code):
     (src, tree) = parsed_code
     system = class_struct_example
     prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{input}")])
-    few_shot_llm = prompt | llm.with_structured_output(ClassDescription)
+    few_shot_llm = prompt | llm.with_structured_output(ClassDescription, method="json_mode")
     return [few_shot_llm.invoke({'input': given_class}) for given_class in get_definitions(src, tree, definition_type="class_definition")]
 
 
