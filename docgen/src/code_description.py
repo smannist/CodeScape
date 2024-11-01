@@ -82,7 +82,7 @@ def describe_classes(llm, parsed_code):
     system = class_struct_example
     prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{input}")])
     few_shot_llm = prompt | llm.with_structured_output(ClassDescription)
-    return [few_shot_llm.invoke({'input': func}) for func in get_definitions(src, tree, definition_type="class_definition")]
+    return [few_shot_llm.invoke({'input': given_class}) for given_class in get_definitions(src, tree, definition_type="class_definition")]
 
 
 def describe_file(llm, filepath, include_funcs=True, include_classes=True, include_overview=True) -> FileDoc:
