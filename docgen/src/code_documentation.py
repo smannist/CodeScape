@@ -10,7 +10,7 @@ class FileDoc():
         self.classes = kwargs.get("classes", []) # List[ClassDescription]
 
     def get_methods(self):
-        return [m for c in self.classes if "functions" in c for m in c.get("functions", [])]
+        return [m for c in self.classes if "methods" in c for m in c.get("methods", [])]
 
     def __count_params(functions):
         return sum([len(func["params"]) for func in functions if "params" in func])

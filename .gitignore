@@ -3,3 +3,4 @@ __pycache__
 .env
 output.json
 test_large.py
+test_file2.py

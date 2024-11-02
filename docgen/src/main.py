@@ -1,4 +1,3 @@
-import sys
 import os
 from code_description import describe_file_funcs, describe_file_classes, describe_file
 from code_documentation import RepoDoc
@@ -41,7 +40,7 @@ def print_stats(repo_doc):
 if __name__ == "__main__":
     load_dotenv()
     cli_args = parse_cli_args()
-    llm = ChatGroq(model=cli_args["model"], api_key=os.getenv("API_KEY"))
+    llm = ChatGroq(model=cli_args["model"], api_key=os.getenv("API_KEY"), temperature=0.0)
     repo_doc = describe_repo(llm, cli_args)
     save_to_json(repo_doc.as_dict(), cli_args["output"])
     print_stats(repo_doc)
