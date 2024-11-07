@@ -1,9 +1,10 @@
 from typing_extensions import Annotated, TypedDict, List, Optional
 from langchain_core.prompts import ChatPromptTemplate
-from parsing import parse_code_file, get_definitions
+from parsing import parse_code_file, get_definitions, parse_python_imports
 from code_documentation import FileDoc
 from overview import generate_file_overview
 from fewshots import class_struct_example
+import os
 
 class Param(TypedDict):
     name: Annotated[
@@ -72,7 +73,7 @@ def describe_funcs(llm, parsed_code):
     # related issue:
     # https://github.com/langchain-ai/langchain/discussions/24309
     func_llm = prompt | llm.with_structured_output(FunctionDescription)
-    return [func_llm.invoke(func) for func in get_definitions(src, tree, definition_type="function_definition")]
+    return [func_llm.invoke(func) for func in get_definitions(tree, definition_type="function_definition")]
 
 def describe_file_classes(llm, filepath):
     return describe_classes(llm, parse_code_file(filepath))
@@ -82,12 +83,17 @@ def describe_classes(llm, parsed_code):
     system = class_struct_example
     prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{input}")])
     few_shot_llm = prompt | llm.with_structured_output(ClassDescription, method="json_mode")
-    return [few_shot_llm.invoke({'input': given_class}) for given_class in get_definitions(src, tree, definition_type="class_definition")]
+    return [few_shot_llm.invoke({'input': given_class}) for given_class in get_definitions(tree, definition_type="class_definition")]
 
 
-def describe_file(llm, filepath, include_funcs=True, include_classes=True, include_overview=True) -> FileDoc:
+def describe_file(llm, filepath, include_funcs=True,
+        include_classes=True, include_overview=True,
+        include_imports=True) -> FileDoc:
     parsed_code = parse_code_file(filepath)
-    filedoc_args = {"name": filepath, "classes": [], "funcs": []}
+    filedoc_args = {"name": filepath, "classes": [], "funcs": [], "imports": []}
+    if include_imports:
+        base_path = os.path.split(filepath)[0]
+        filedoc_args["imports"] = parse_python_imports(parsed_code[1], base_path) 
     if include_classes:
         filedoc_args["classes"] = describe_classes(llm, parsed_code)
     if include_funcs:

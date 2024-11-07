@@ -1,36 +1,6 @@
 import tree_sitter_python
+import os
 from tree_sitter import Language, Parser
-
-
-def get_contents(text_data: bytes, start: tuple, end: tuple) -> str:
-    """
-    Returns the text in the range selected by the tuples.
-
-    Args:
-    text_data (bytes): The contents of the text file.
-    start (tuple): A tuple containing the line number and line position of the start of the range.
-    end (tuple): A tuple containing the line number and line position of the end of the range.
-
-    Returns:
-    str: The text in the range selected by the tuples.
-    """
-    text = text_data.decode('utf-8')
-    lines = text.splitlines()
-    if start[0] < 0 or end[0] < 0 or start[0] >= len(
-            lines) or end[0] >= len(lines):
-        raise ValueError("Invalid line number")
-    if start[1] < 0 or end[1] < 0 or start[1] > len(
-            lines[start[0]]) or end[1] > len(lines[end[0]]):
-        raise ValueError("Invalid line position")
-    result = ""
-    if start[0] == end[0]:
-        result = lines[start[0]][start[1]:end[1]]
-    else:
-        result = lines[start[0]][start[1]:]
-        for i in range(start[0] + 1, end[0]):
-            result += "\n" + lines[i]
-        result += "\n" + lines[end[0]][:end[1]]
-    return result
 
 
 def traverse_top_level(tree):
@@ -43,9 +13,32 @@ def traverse_top_level(tree):
             break
 
 
-def get_definitions(src, tree, definition_type):
-    return [get_contents(src, node.start_point, node.end_point)
-            for node in traverse_top_level(tree) if node.type == definition_type]
+def traverse_tree(tree): #From tree-sitter examples
+    "Yields all nodes of a syntax tree"
+    cursor = tree.walk()
+    visited_children = False
+    while True:
+        if not visited_children:
+            yield cursor.node
+            if not cursor.goto_first_child():
+                visited_children = True
+        elif cursor.goto_next_sibling():
+            visited_children = False
+        elif not cursor.goto_parent():
+            break
+
+
+def get_nodes_of_type(tree, node_type, recursive=False):
+    traversal = traverse_tree if recursive else traverse_top_level
+    return [node for node in traversal(tree) if node.type == node_type]
+
+
+def node_to_str(node):
+    return node.text.decode("utf-8")
+
+
+def get_definitions(tree, definition_type):
+    return [node_to_str(node) for node in get_nodes_of_type(tree, definition_type, False)]
 
 
 def parse_code_file(filepath):
@@ -55,3 +48,19 @@ def parse_code_file(filepath):
     with open(filepath, "rb") as f:
         src = f.read()
     return (src, parser.parse(src))
+
+
+def parse_python_imports(tree, base_path):
+    """Given a syntax tree and a base_path, returns a list of names of python files imported in the tree.
+    Only python files within base_path are considered"""
+    imports = get_nodes_of_type(tree, "import_statement", recursive=True)
+    import_names = [node.child_by_field_name("name") for node in imports]
+    imports_from = get_nodes_of_type(tree, "import_from_statement", recursive=True)
+    import_names += [node.child_by_field_name("module_name") for node in imports_from]
+    import_files = []
+    for module in import_names:
+        path = os.path.join(base_path, node_to_str(module).replace('.', '/') + ".py")
+        if os.path.exists(path):
+            import_files.append(path)
+    return import_files
+

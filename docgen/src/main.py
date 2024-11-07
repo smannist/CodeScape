@@ -15,7 +15,8 @@ def describe_repo(llm, cli_args):
     code_docs = [describe_file(llm, file, 
         include_funcs="function" in cli_args["types"],
         include_classes="class" in cli_args["types"],
-        include_overview="file" in cli_args["types"]
+        include_overview="file" in cli_args["types"],
+        include_imports="imports" in cli_args["types"]
     ) for file in code_files]
     
     result = {"files": code_docs}

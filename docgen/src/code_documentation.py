@@ -8,6 +8,7 @@ class FileDoc():
         self.overview = kwargs.get("overview", "") # String
         self.functions = kwargs.get("funcs", []) # List[FunctionDescription]
         self.classes = kwargs.get("classes", []) # List[ClassDescription]
+        self.imports = kwargs.get("imports", []) # List[String]
 
     def get_methods(self):
         return [m for c in self.classes if "methods" in c for m in c.get("methods", [])]
@@ -27,6 +28,7 @@ class FileDoc():
             'overview': self.overview,
             'functions': self.functions,
             'classes': self.classes,
+            'imports': self.imports,
         }
 
 class RepoDoc():
