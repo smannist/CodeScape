@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 
 def get_supported_types():
     "Gets list of recognized documentation types"
-    return ["function", "class", "file", "repo", "code-graph"]
+    return ["function", "class", "file", "repo", "code-graph", "imports"]
 
 def validate_doc_types(types):
     "Converts requested documentation types to a set, and changes the types based on the dependencies between types"
