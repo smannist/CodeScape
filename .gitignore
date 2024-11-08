@@ -5,56 +5,9 @@ output.json
 test_large.py
 test_file2.py
 
-# ========== Unity Generated Files ==========
-[Ll]ibrary/
-[Tt]emp/
-[Oo]bj/
-[Bb]uild/
-[Bb]uilds/
-[Ll]ogs/
-[Mm]emoryCaptures/
-UserSettings/
-
-# ========== Visual Studio Generated Files ==========
-.vscode/
-.vs/
-*.csproj
-*.sln
-*.suo
-*.user
-*.unityproj
-*.pidb
-*.booproj
-*.svd
-
-# ========== OS Generated Files ==========
-.DS_Store
-Thumbs.db
-Desktop.ini
-
-# ========== Cache and User Preferences ==========
-*.pidb.meta
-*.pdb
-*.mdb
-*.opendb
-*.VC.db
-
-# ========== Crash Reports ==========
-sysinfo.txt
-
-# ========== Auto-Generated Unity Asset Files ==========
-*.apk
-*.aab
-*.unitypackage
-
-# ========== Unity Build Artifacts ==========
-*.log
-*.stacktrace
-
-# ========== Configuration Files ==========
-# Avoid adding user-specific configurations.
-*.csproj.user
-*.swp
-*.tmp
-*.tmproj
-*.tmproject
+/CodeCity/.vs/CodeCity
+/CodeCity/obj/Debug
+/CodeCity/Temp
+/.vs
+/CodeCity/Library
+/CodeCity/Logs
