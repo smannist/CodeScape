@@ -12,24 +12,24 @@ using File = System.IO.File;
 public class JsonReader : MonoBehaviour
 {
     private string filePath;
-    public RootObject fileData;
+    public FileData fileData;
 
-    public void Start()
+    public void StartReadingJson()
     {
         // Assuming the .sln file is in the root project directory, we access it directly.
         filePath = Path.Combine(Directory.GetCurrentDirectory(), "output.json");
-        Debug.Log("filePath: " + filePath);
-        LoadFloorData();
+        LogFileWriter.WriteLog("filePath:" , filePath);
+        LoadFileData();
     }
 
-    void LoadFloorData()
+    private void LoadFileData()
     {
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);
             //fileData = JsonUtility.FromJson<RootObject>(json);
-            
-            fileData = JsonConvert.DeserializeObject<RootObject>(json);
+
+            fileData = JsonConvert.DeserializeObject<FileData>(json);
             Debug.Log("Floor Count: " + fileData?.files?.Count());
         }
         else
@@ -38,9 +38,4 @@ public class JsonReader : MonoBehaviour
         }
     }
 
-    // Getter for floor count
-    public int? GetFloorCount()
-    {
-        return fileData?.files[0]?.classes?.Count();
-    }
 }

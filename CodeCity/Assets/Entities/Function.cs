@@ -1,7 +1,7 @@
 ﻿namespace Assets.Entities
 {
     [System.Serializable]
-    public partial class Function1
+    public partial class Function
     {
         public string name { get; set; }
 

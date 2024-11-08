@@ -3,8 +3,8 @@
 namespace Assets.Entities
 {
     [System.Serializable]
-    public partial class FileData1
+    public partial class FileData
     {
-        //public File[] files { get; set; }
+        public File[] files { get; set; }
     }
 }

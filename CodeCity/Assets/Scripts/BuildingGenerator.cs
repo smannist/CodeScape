@@ -1,9 +1,18 @@
+using Assets.Entities;
+using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
+using System.Xml.Linq;
+using TMPro;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Random = UnityEngine.Random;
 
 public class BuildingGenerator : MonoBehaviour
 {
     private JsonReader jsonReader;
+    private TMP_FontAsset fontAsset;
     // Number of stories (floors)
     public int numberOfStories = 5;
 
@@ -15,69 +24,187 @@ public class BuildingGenerator : MonoBehaviour
 
     public float offset = 0.9f;
 
+    public int numberOfBuildings = 3;
+
+    // Spacing between buildings
+    public Vector3 buildingSpacing = new Vector3(10, 0, 10);
+
     // Start method to generate the building
-    void Start()
+    public void StartCityGeneration()
     {
         jsonReader = FindObjectOfType<JsonReader>();
-        jsonReader.Start();
         // Check if the BuildingManager was found
         if (jsonReader != null)
         {
-            int floorCount = jsonReader.GetFloorCount() ?? 0;
-            // Get the building count from BuildingManager
-            int numberOfStories = floorCount;
-            Debug.Log("Number of buildings: " + numberOfStories);
+            FileData fileData = jsonReader.fileData;
 
-            // Now you can use numberOfBuildings to generate buildings or whatever logic you need
-            GenerateBuilding(numberOfStories);
+            //load font
+            fontAsset = Resources.Load<TMP_FontAsset>("Fonts & Materials/LiberationSans SDF");
+            // Assign the font to TextMeshPro if found
+            if (fontAsset == null)
+            {
+                LogFileWriter.WriteLog("Font asset LiberationSans SDF not found in Resources folder.");
+            }
+
+            GenerateCity(fileData);
+            //((MeshRenderer)transform.Find("TextLabel").gameObject.GetComponent("MeshRenderer")).sortingOrder = 5;
         }
         else
         {
             Debug.LogError("BuildingManager not found in the scene.");
         }
-        
+
+    }
+
+   
+    void GenerateCity(FileData fileData)
+    {
+        int buildingCount = fileData?.files?.Length ?? 0;
+        int rows = Mathf.CeilToInt(Mathf.Sqrt(buildingCount)); // Number of rows and columns
+        LogFileWriter.WriteLog("Building Count",buildingCount);
+        int buildingIndex = 0;
+
+        for (int x = 0; buildingIndex < buildingCount; x++)
+        {
+            File building = fileData.files[buildingIndex];
+            LogFileWriter.WriteLog("Building", buildingIndex, "name", building.name);
+            //for (int z = 0; z < rows && currentBuilding < count; z++)
+            //{
+            // Calculate the position of each building
+            float xPosition = (x % 2 == 0) ? x * (cubeSize.x + offset) : -x * (cubeSize.x + offset);
+            Vector3 position = new Vector3(xPosition, 0, x * (cubeSize.z) );
+            LogFileWriter.WriteLog($"Building Position: x={position.x} y={position.y} z={position.z}");
+
+            // Generate a building at the calculated position
+            GenerateBuilding(building, position);
+
+                buildingIndex++;
+            //    break;
+            //}
+        }
     }
 
     // Method to generate the building with given number of stories
-    void GenerateBuilding(int stories)
+    void GenerateBuilding(File FileObject, Vector3 position)
     {
-        for (int i = 0; i < stories; i++)
+        int stories = FileObject?.classes?.Length ?? 0;
+        if (stories <= 0)//TO DO: need to change this logic when functions without classes are displayed
         {
+            return;
+        }
+        GameObject building = new GameObject("Building");
+        AddBuildingLabel(building, position, FileObject.name);
+        Color randomColor = new Color(Random.value, Random.value, Random.value);
+        LogFileWriter.WriteLog(building.name, "Floor count", stories);
+        for (int floorIndx = 0; floorIndx < stories; floorIndx++)
+        {
+            Class clasObject = FileObject.classes[floorIndx];
+            LogFileWriter.WriteLog("rendering floor", floorIndx);
             // Create a new GameObject for each floor
             GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
             // Set the size of the floor
             floor.transform.localScale = cubeSize;
 
-            // Position the floor appropriately in the Y-axis
-            floor.transform.position = new Vector3(0, i * (cubeSize.y + spacing), 0);
-
-            // Optional: Set the parent of the floor to keep things organized
-            floor.transform.parent = this.transform;
+            // Position the floor at the correct height
+            floor.transform.position = position + new Vector3(0, floorIndx * (cubeSize.y + spacing), 0);
+            //set color
+            Renderer floorRenderer = floor.GetComponent<Renderer>();
+            if (floorRenderer != null)
+            {
+                floorRenderer.material.color = randomColor;
+            }
+            // Parent the floor to the building
+            floor.transform.parent = building.transform;
 
             // Add a label to the floor
-            AddLabel(floor, i );
+            AddFloorLabel(floor, clasObject.name, floorIndx);
         }
+
+        // Set the parent of the building to this GameObject for organization
+        building.transform.parent = this.transform;
+
+       
+    }
+    void AddFloorLabel(GameObject floor, string floorName, int floorNumber)
+    {
+        GameObject textObject = new GameObject("TextLabel");
+        TextMeshPro textMeshPro = textObject.AddComponent<TextMeshPro>();
+        // Ensure a font asset is assigned
+        textMeshPro.font = fontAsset;
+
+        // Set the label's text and appearance
+        textMeshPro.text = name;
+        textMeshPro.fontSize = 8;
+        textMeshPro.color = Color.black;
+        textMeshPro.alignment = TextAlignmentOptions.Center;
+
+        Vector3 labelPosition = new Vector3(floor.transform.position.x - cubeSize.x / 2, floor.transform.position.y + cubeSize.y / 2 * floorNumber, floor.transform.position.z + offset);
+        LogFileWriter.WriteLog($"Floor label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
+        // Set the label's position
+        textObject.transform.position = labelPosition;
+
+        // Vector3 labelPosition = new Vector3(floor.transform.position.x, floor.transform.position.y - offset, floor.transform.position.z);
+        // textObject.transform.position = labelPosition;
+        // LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
+
+        // Attach the label to the building
+        textObject.transform.parent = floor.transform;
+
+        // Adjust rotation if needed
+        textObject.transform.rotation = Quaternion.Euler(0, 0, 0);
     }
 
-    void AddLabel(GameObject floor, int floorNumber)
+    void AddBuildingLabel(GameObject building, Vector3 buildingPosition, string name)
+    {
+        GameObject textObject = new GameObject("BuildingLabel");
+        TextMeshPro textMeshPro = textObject.AddComponent<TextMeshPro>();
+
+        // Ensure a font asset is assigned
+        textMeshPro.font = fontAsset;
+        // Set the label's text and appearance
+        textMeshPro.text = name;
+        textMeshPro.fontSize = 8;
+        textMeshPro.color = Color.black;
+        textMeshPro.alignment = TextAlignmentOptions.Center;
+        MeshRenderer meshRenderer = textObject.GetComponent<MeshRenderer>();
+
+        // Set sorting order of the MeshRenderer
+        meshRenderer.sortingOrder = 5;  // Change sorting order here
+
+        Vector3 labelPosition = new Vector3(2*buildingPosition.x+offset, buildingPosition.y - offset, 2*buildingPosition.z+offset);
+        textObject.transform.position = labelPosition;
+        LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
+
+        // Attach the label to the building
+       // textObject.transform.SetParent(building.transform, false);
+        //textObject.transform.parent = building.transform;
+        //textObject.transform.rotation = Quaternion.LookRotation(textObject.transform.position - Camera.main.transform.position);
+
+
+        // Adjust rotation if needed
+        //textObject.transform.rotation = Quaternion.Euler(0, 0, 0);
+
+        // Scale down if the text appears too large
+        //textObject.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+    }
+    
+    
+    /*
+    void AddFloorLabel(GameObject floor, string floorName, int floorNumber)
     {
         GameObject label = new GameObject("Label");
         TextMesh textMesh = label.AddComponent<TextMesh>();
 
         // Set the label's text
-        textMesh.text = "Floor " + floorNumber;
+        textMesh.text = floorName;
 
         // Customize the appearance of the text
-        textMesh.fontSize = 10; // Set smaller font size
+        textMesh.fontSize = 9; // Set smaller font size
         textMesh.color = Color.black;
 
-        // Position the label on the outside wall of the floor
-        //label.transform.position = floor.transform.position + new Vector3(cubeSize.x / 2 + 0.1f, 0, 0);
-        // Position the label on the outside of the floor, using the front side (positive Z direction)
-        // Offset to prevent text clipping into the wall
-        Vector3 labelPosition = floor.transform.position + new Vector3(floor.transform.position.x - cubeSize.x/2, cubeSize.y /2 * floorNumber, offset);
-
+        Vector3 labelPosition =  new Vector3(floor.transform.position.x - cubeSize.x / 2, floor.transform.position.y + cubeSize.y / 2 * floorNumber, floor.transform.position.z+ offset);
+        LogFileWriter.WriteLog($"Floor label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
         // Set the label's position
         label.transform.position = labelPosition;
 
@@ -87,47 +214,37 @@ public class BuildingGenerator : MonoBehaviour
         // Rotate the label to Face the Z-axis
         label.transform.rotation = Quaternion.Euler(0, 0, 0);
     }
+  
+    void AddBuildingLabel(GameObject building, Vector3 buildingPosition, string name)
+    {
+        GameObject textObject = new GameObject("Text");
+        textObject.transform.position = new Vector3(0, 0, 0);
+
+        TextMeshPro textMeshPro = textObject.AddComponent<TextMeshPro>();
 
 
+        // GameObject label = new GameObject("Label");
+        //TextMesh textMesh = label.AddComponent<TextMesh>();
 
+        // Set the label's text
+        textMeshPro.text = name;
 
+        // Customize the appearance of the text
+        textMeshPro.fontSize = 9;
+        textMeshPro.color = Color.black;
+        Vector3 labelPosition =  new Vector3(buildingPosition.x, buildingPosition.y - offset, buildingPosition.z);
+        LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
+        // Set the label's position
+        textObject.transform.position = labelPosition;
 
-[System.Serializable]
-public class FileInfo
-{
-    public string name;
-    public string overview;
-    public List<FunctionInfo> functions;
-    public List<ClassInfo> classes;
-}
+        // Attach the label as a child of the floor
+        textObject.transform.parent = building.transform;
 
-[System.Serializable]
-public class FunctionInfo
-{
-    public string name;
-    public string description;
-}
-
-[System.Serializable]
-public class ParamInfo
-{
-    public string name;
-    public string description;
-}
-
-[System.Serializable]
-public class ClassInfo
-{
-    public string name;
-    public string description;
-    public List<FunctionInfo> functions;
-}
-
-[System.Serializable]
-public class RootObject
-{
-    public List<FileInfo> files;
-}
-
+        // Rotate the label to Face the Z-axis
+        textObject.transform.rotation = Quaternion.Euler(0, 0, 0);
+    }*/
+    
 
 }
+
+
