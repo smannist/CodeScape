@@ -1,0 +1,74 @@
+import { Link } from "react-router-dom";
+
+import {
+  List,
+  ListItemButton,
+  ListItemText,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Box,
+  ListItemIcon,
+} from "@mui/material";
+
+import { blue } from "@mui/material/colors";
+
+import HomeIcon from "@mui/icons-material/Home";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
+
+import FileList from "./FileList";
+
+import { RepoDescription } from "../types/description";
+
+interface Props {
+  documentation: RepoDescription;
+}
+
+const SideMenu = ({ documentation }: Props): JSX.Element => {
+  return (
+    <List sx={{ width: 400, height: "100vh", overflow: "hidden" }}>
+      <Box
+        sx={{
+          boxShadow: 2,
+          mb: 2,
+          borderRadius: 1,
+          border: "1px solid #ccc",
+        }}
+      >
+        <ListItemButton component={Link} to="/" sx={{ padding: "12px 16px" }}>
+          <ListItemIcon>
+            <HomeIcon />
+          </ListItemIcon>
+          <ListItemText primary="Home" />
+        </ListItemButton>
+      </Box>
+      <Accordion
+        sx={{
+          border: "1px solid #ccc",
+          borderRadius: 1,
+          boxShadow: 1,
+        }}
+      >
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon sx={{ color: blue[400] }} />}
+        >
+          <ListItemIcon>
+            <InsertDriveFileIcon />
+          </ListItemIcon>
+          <ListItemText primary="Files" />
+        </AccordionSummary>
+        <AccordionDetails
+          sx={{
+            maxHeight: "calc(100vh - 150px)",
+            overflowY: "auto",
+          }}
+        >
+          <FileList files={documentation.files} />
+        </AccordionDetails>
+      </Accordion>
+    </List>
+  );
+};
+
+export default SideMenu;
