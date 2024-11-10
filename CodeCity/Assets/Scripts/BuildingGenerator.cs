@@ -7,6 +7,7 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Object = UnityEngine.Object;
 using Random = UnityEngine.Random;
 
 public class BuildingGenerator : MonoBehaviour
@@ -32,7 +33,7 @@ public class BuildingGenerator : MonoBehaviour
     // Start method to generate the building
     public void StartCityGeneration()
     {
-        jsonReader = FindObjectOfType<JsonReader>();
+        jsonReader = Object.FindFirstObjectByType<JsonReader>();
         // Check if the BuildingManager was found
         if (jsonReader != null)
         {
