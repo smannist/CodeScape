@@ -93,6 +93,7 @@ public class BuildingGenerator : MonoBehaviour
             return;
         }
         GameObject building = new GameObject("Building");
+        // AddBuildingLabel(building, position, FileObject.name);
         AddBuildingLabel(building, position, FileObject.name);
         Color randomColor = new Color(Random.value, Random.value, Random.value);
         LogFileWriter.WriteLog(building.name, "Floor count", stories);
@@ -107,7 +108,8 @@ public class BuildingGenerator : MonoBehaviour
             floor.transform.localScale = cubeSize;
 
             // Position the floor at the correct height
-            floor.transform.position = position + new Vector3(0, floorIndx * (cubeSize.y + spacing), 0);
+            Vector3 floorPosition = position + new Vector3(0, floorIndx * (cubeSize.y + spacing), 0);
+            floor.transform.position = floorPosition;
             //set color
             Renderer floorRenderer = floor.GetComponent<Renderer>();
             if (floorRenderer != null)
@@ -118,7 +120,8 @@ public class BuildingGenerator : MonoBehaviour
             floor.transform.parent = building.transform;
 
             // Add a label to the floor
-            AddFloorLabel(floor, clasObject.name, floorIndx);
+            //AddFloorLabel(floor, clasObject.name, floorIndx);
+            AddFloorLabel1(floor, floorPosition, clasObject.name, floorIndx);
         }
 
         // Set the parent of the building to this GameObject for organization
@@ -126,124 +129,54 @@ public class BuildingGenerator : MonoBehaviour
 
        
     }
-    void AddFloorLabel(GameObject floor, string floorName, int floorNumber)
-    {
-        GameObject textObject = new GameObject("TextLabel");
-        TextMeshPro textMeshPro = textObject.AddComponent<TextMeshPro>();
-        // Ensure a font asset is assigned
-        textMeshPro.font = fontAsset;
-
-        // Set the label's text and appearance
-        textMeshPro.text = name;
-        textMeshPro.fontSize = 8;
-        textMeshPro.color = Color.black;
-        textMeshPro.alignment = TextAlignmentOptions.Center;
-
-        Vector3 labelPosition = new Vector3(floor.transform.position.x - cubeSize.x / 2, floor.transform.position.y + cubeSize.y / 2 * floorNumber, floor.transform.position.z + offset);
-        LogFileWriter.WriteLog($"Floor label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
-        // Set the label's position
-        textObject.transform.position = labelPosition;
-
-        // Vector3 labelPosition = new Vector3(floor.transform.position.x, floor.transform.position.y - offset, floor.transform.position.z);
-        // textObject.transform.position = labelPosition;
-        // LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
-
-        // Attach the label to the building
-        textObject.transform.parent = floor.transform;
-
-        // Adjust rotation if needed
-        textObject.transform.rotation = Quaternion.Euler(0, 0, 0);
-    }
-
+    
     void AddBuildingLabel(GameObject building, Vector3 buildingPosition, string name)
     {
-        GameObject textObject = new GameObject("BuildingLabel");
+        // Create a new GameObject for the TextMespositionhPro text
+        GameObject textObject = new GameObject("FloorLabel");
+        textObject.transform.position = buildingPosition;
+
+        // Add a TextMeshPro component to the object
         TextMeshPro textMeshPro = textObject.AddComponent<TextMeshPro>();
 
-        // Ensure a font asset is assigned
+        // Set the text properties
         textMeshPro.font = fontAsset;
-        // Set the label's text and appearance
         textMeshPro.text = name;
         textMeshPro.fontSize = 8;
-        textMeshPro.color = Color.black;
         textMeshPro.alignment = TextAlignmentOptions.Center;
-        MeshRenderer meshRenderer = textObject.GetComponent<MeshRenderer>();
+        textMeshPro.color = Color.black;
 
-        // Set sorting order of the MeshRenderer
-        meshRenderer.sortingOrder = 5;  // Change sorting order here
-
-        Vector3 labelPosition = new Vector3(2*buildingPosition.x+offset, buildingPosition.y - offset, 2*buildingPosition.z+offset);
+        Vector3 labelPosition = new Vector3( buildingPosition.x, buildingPosition.y - cubeSize.y,  buildingPosition.z);
         textObject.transform.position = labelPosition;
         LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
 
-        // Attach the label to the building
-       // textObject.transform.SetParent(building.transform, false);
-        //textObject.transform.parent = building.transform;
-        //textObject.transform.rotation = Quaternion.LookRotation(textObject.transform.position - Camera.main.transform.position);
-
-
-        // Adjust rotation if needed
-        //textObject.transform.rotation = Quaternion.Euler(0, 0, 0);
-
-        // Scale down if the text appears too large
-        //textObject.transform.localScale = new Vector3(0.1f, 0.1f, 0.1f);
+        // Assign the "TextMesh Pro - Mobile - Distance Field Overlay" shader
+        textMeshPro.fontMaterial.shader = Shader.Find("TextMeshPro/Mobile/Distance Field Overlay");
+        textObject.transform.SetParent(building.transform, false);
     }
     
-    
-    /*
-    void AddFloorLabel(GameObject floor, string floorName, int floorNumber)
+    void AddFloorLabel1(GameObject floor, Vector3 position, string floorName, int floorIndex)
     {
-        GameObject label = new GameObject("Label");
-        TextMesh textMesh = label.AddComponent<TextMesh>();
+        // Create a new GameObject for the TextMeshPro text
+        GameObject textObject = new GameObject("AlwaysOnTopText");
+        textObject.transform.position = position;
 
-        // Set the label's text
-        textMesh.text = floorName;
-
-        // Customize the appearance of the text
-        textMesh.fontSize = 9; // Set smaller font size
-        textMesh.color = Color.black;
-
-        Vector3 labelPosition =  new Vector3(floor.transform.position.x - cubeSize.x / 2, floor.transform.position.y + cubeSize.y / 2 * floorNumber, floor.transform.position.z+ offset);
-        LogFileWriter.WriteLog($"Floor label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
-        // Set the label's position
-        label.transform.position = labelPosition;
-
-        // Attach the label as a child of the floor
-        label.transform.parent = floor.transform;
-
-        // Rotate the label to Face the Z-axis
-        label.transform.rotation = Quaternion.Euler(0, 0, 0);
-    }
-  
-    void AddBuildingLabel(GameObject building, Vector3 buildingPosition, string name)
-    {
-        GameObject textObject = new GameObject("Text");
-        textObject.transform.position = new Vector3(0, 0, 0);
-
+        // Add a TextMeshPro component to the object
         TextMeshPro textMeshPro = textObject.AddComponent<TextMeshPro>();
 
-
-        // GameObject label = new GameObject("Label");
-        //TextMesh textMesh = label.AddComponent<TextMesh>();
-
-        // Set the label's text
-        textMeshPro.text = name;
-
-        // Customize the appearance of the text
-        textMeshPro.fontSize = 9;
+        // Set the text properties
+        textMeshPro.text = floorName;
+        textMeshPro.fontSize = 8;
+        textMeshPro.alignment = TextAlignmentOptions.Center;
         textMeshPro.color = Color.black;
-        Vector3 labelPosition =  new Vector3(buildingPosition.x, buildingPosition.y - offset, buildingPosition.z);
-        LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
-        // Set the label's position
+
+        Vector3 labelPosition = new Vector3(position.x, position.y + spacing * floorIndex, position.z);
         textObject.transform.position = labelPosition;
+        LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
 
-        // Attach the label as a child of the floor
-        textObject.transform.parent = building.transform;
-
-        // Rotate the label to Face the Z-axis
-        textObject.transform.rotation = Quaternion.Euler(0, 0, 0);
-    }*/
-    
+        // Assign the "TextMesh Pro - Mobile - Distance Field Overlay" shader
+        textMeshPro.fontMaterial.shader = Shader.Find("TextMeshPro/Mobile/Distance Field Overlay");
+    }
 
 }
 
