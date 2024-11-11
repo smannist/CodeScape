@@ -3,14 +3,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using UnityEditor.XR.LegacyInputHelpers;
 using UnityEngine;
 
 public class AppBuilder : MonoBehaviour
 {
     public Camera mainCamera;
-    // Offset to position the camera when moving to the first floor
-    public Vector3 cameraOffset = new Vector3(0, 2, -5);
-
     // Time threshold for double-click detection (in seconds)
     public float doubleClickThreshold = 0.3f;
 
@@ -74,14 +72,14 @@ public class AppBuilder : MonoBehaviour
             else
             {
                 Debug.Log("No object was hit by the ray.");
-                ResetCameraView();
+                ZoomOut();
             }
         }
     }
 
 
     // Method to reset the camera to the initial position and rotation
-    public void ResetCameraView()
+    public void ZoomOut()
     {
         if (mainCamera != null)
         {
@@ -111,7 +109,7 @@ public class AppBuilder : MonoBehaviour
             else
             {
                 Debug.Log("Single-click detected on: " + gameObject.name);
-                EnterFloor(gameObject);
+                ZoomIn(gameObject);
             }
 
             // Update the last click time
@@ -123,12 +121,24 @@ public class AppBuilder : MonoBehaviour
         }
     }
 
-    private void EnterFloor(GameObject gameObject)
+    private void ZoomIn(GameObject gameObject)
     {
-        Debug.Log("Entering floor: " + gameObject.name);
+        if (mainCamera != null)
+        {
+            Vector3 cameraOffset = new Vector3(0, 5, -10);
+            // Adjust the camera offset for better viewing distance
+            Vector3 targetPosition = gameObject.transform.position + cameraOffset;
 
-        // Move the camera to focus on the first floor
-        MoveCameraToFloor(gameObject);
+            // Move the camera closer but maintain a smooth transition (optional)
+            mainCamera.transform.position = targetPosition;
+
+            // Adjust the camera to look at the object directly
+            mainCamera.transform.LookAt(gameObject.transform.position);
+        }
+        else
+        {
+            Debug.LogWarning("Main camera not assigned!");
+        }
     }
 
     private void HandleDoubleClick()
@@ -136,25 +146,6 @@ public class AppBuilder : MonoBehaviour
         Debug.Log("Handling double-click event on floor: " + gameObject.name);
         // You can add additional behavior for double-click here
         // For example, focus the camera on the floor or show more information.
-    }
-
-    private void MoveCameraToFloor(GameObject gameObject)
-    {
-        if (mainCamera != null)
-        {
-            // Calculate the target position: use the current floor's position and add the offset
-            Vector3 targetPosition = gameObject.transform.position + cameraOffset;
-
-            // Move the camera to this position
-            mainCamera.transform.position = targetPosition;
-
-            // Optionally, adjust the camera rotation to look at the floor
-           // mainCamera.transform.LookAt(transform.position);
-        }
-        else
-        {
-            Debug.LogWarning("Main camera not assigned!");
-        }
     }
 
 }

@@ -115,6 +115,7 @@ public class BuildingGenerator : MonoBehaviour
             // Position the floor at the correct height
             Vector3 floorPosition = buildingPosition + new Vector3(0, floorIndx * (cubeSize.y + spacing), 0);
             floor.transform.position = floorPosition;
+            floor.transform.rotation = Quaternion.Euler(new Vector3(0, 45, 0)); // Set rotation (e.g., 45 degrees on the Y-axis)
             //set color
             Renderer floorRenderer = floor.GetComponent<Renderer>();
             if (floorRenderer != null)
@@ -185,9 +186,11 @@ public class BuildingGenerator : MonoBehaviour
         textMeshPro.alignment = TextAlignmentOptions.Center;
         textMeshPro.color = Color.black;
 
-        Vector3 labelPosition = new Vector3(position.x, position.y + spacing * floorIndex, position.z);
+        Vector3 labelPosition = new Vector3(position.x, position.y + (spacing   * floorIndex), position.z);
         textObject.transform.position = labelPosition;
         LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
+
+        textObject.transform.SetParent(floor.transform, worldPositionStays: true);
 
         // Assign the "TextMesh Pro - Mobile - Distance Field Overlay" shader
         textMeshPro.fontMaterial.shader = Shader.Find("TextMeshPro/Mobile/Distance Field Overlay");
