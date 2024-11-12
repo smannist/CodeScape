@@ -4,3 +4,11 @@ __pycache__
 output.json
 test_large.py
 test_file2.py
+
+/CodeCity/.vs/CodeCity
+/CodeCity/obj/Debug
+/CodeCity/Temp
+/.vs
+/CodeCity/Library
+/CodeCity/Logs
+/CodeCity/.vs
