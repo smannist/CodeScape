@@ -29,7 +29,7 @@ const Overview = ({ overview }: Props): JSX.Element => {
       </Typography>
       <Typography variant="body1" color="textSecondary" sx={{ mt: 5 }}>
         To start browsing, click "Files" on the left, or explore your{" "}
-        <Link href="">Code City</Link>.
+        <Link href="/codecity">Code City</Link>.
       </Typography>
     </Box>
   );

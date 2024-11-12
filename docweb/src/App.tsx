@@ -4,8 +4,9 @@ import SideMenu from "./components/SideMenu/index";
 import ClassDocDisplay from "./components/ClassDocDisplay/index";
 import FunctionDocDisplay from "./components/FunctionDocDisplay/index";
 import Overview from "./components/Overview";
+import CodeCity from "./components/CodeCity";
 
-import documentation from "../../docgen/src/output.json";
+import documentation from "../output.json";
 
 const App = () => {
   return (
@@ -25,6 +26,10 @@ const App = () => {
             <Route
               path="/function/:functionName"
               element={<FunctionDocDisplay documentation={documentation} />}
+            />
+            <Route
+              path="/codecity"
+              element={<CodeCity documentation={documentation} />}
             />
           </Routes>
         </div>

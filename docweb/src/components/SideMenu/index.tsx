@@ -9,10 +9,12 @@ import {
   AccordionDetails,
   Box,
   ListItemIcon,
+	Icon,
 } from "@mui/material";
 
 import { blue } from "@mui/material/colors";
 
+import CityIcon from "@mui/icons-material/Apartment";
 import HomeIcon from "@mui/icons-material/Home";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
@@ -25,10 +27,8 @@ interface Props {
   documentation: RepoDescription;
 }
 
-const SideMenu = ({ documentation }: Props): JSX.Element => {
-  return (
-    <List sx={{ width: 400, height: "100vh", overflow: "hidden" }}>
-      <Box
+const SideMenuButton = ({title, to_url, icon} : Props): JSX.Element => {
+return  (<Box
         sx={{
           boxShadow: 2,
           mb: 2,
@@ -36,13 +36,20 @@ const SideMenu = ({ documentation }: Props): JSX.Element => {
           border: "1px solid #ccc",
         }}
       >
-        <ListItemButton component={Link} to="/" sx={{ padding: "12px 16px" }}>
+	<ListItemButton component={Link} to={to_url} sx={{ padding: "12px 16px" }}>
           <ListItemIcon>
-            <HomeIcon />
+            <Icon component={icon} />
           </ListItemIcon>
-          <ListItemText primary="Home" />
+          <ListItemText primary={title} />
         </ListItemButton>
-      </Box>
+      </Box>)
+}
+
+const SideMenu = ({ documentation }: Props): JSX.Element => {
+  return (
+    <List sx={{ width: 400, height: "100vh", overflow: "hidden" }}>
+    <SideMenuButton title="Home" to_url="/" icon={HomeIcon} />
+    <SideMenuButton title="Code City" to_url="/codecity" icon={CityIcon} />
       <Accordion
         sx={{
           border: "1px solid #ccc",
