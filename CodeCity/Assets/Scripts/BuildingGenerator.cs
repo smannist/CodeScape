@@ -1,6 +1,7 @@
 using Assets.Entities;
-using Microsoft.MixedReality.Toolkit.Build.Editor;
+//using Microsoft.MixedReality.Toolkit.Build.Editor;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using System.Xml.Linq;
@@ -26,14 +27,26 @@ public class BuildingGenerator : MonoBehaviour
     // Spacing between buildings
     public Vector3 buildingSpacing = new Vector3(10, 0, 10);
 
+	public Shader fontShader;
+	public Material floorMaterial;
 
     // Start method to generate the building
     public void StartCityGeneration()
+    {
+    	StartCoroutine(JsonToCity());	
+    }
+    
+    IEnumerator JsonToCity()
     {
         jsonReader = Object.FindFirstObjectByType<JsonReader>();
         // Check if the BuildingManager was found
         if (jsonReader != null)
         {
+        
+        	Debug.Log("Waiting for file load!");
+        	yield return new WaitUntil(() => jsonReader.fileLoaded);
+        	Debug.Log("File load done!");
+        	
             FileData fileData = jsonReader.fileData;
 
             //load font
@@ -120,6 +133,7 @@ public class BuildingGenerator : MonoBehaviour
             Renderer floorRenderer = floor.GetComponent<Renderer>();
             if (floorRenderer != null)
             {
+            	floorRenderer.material = floorMaterial;
                 floorRenderer.material.color = buildingColor;
             }
             // Attach the click handling script to each floor
@@ -167,7 +181,7 @@ public class BuildingGenerator : MonoBehaviour
         LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
 
         // Assign the "TextMesh Pro - Mobile - Distance Field Overlay" shader
-        textMeshPro.fontMaterial.shader = Shader.Find("TextMeshPro/Mobile/Distance Field Overlay");
+        textMeshPro.fontMaterial.shader = fontShader;
         textObject.transform.SetParent(building.transform, false);
     }
     
@@ -193,7 +207,7 @@ public class BuildingGenerator : MonoBehaviour
         textObject.transform.SetParent(floor.transform, worldPositionStays: true);
 
         // Assign the "TextMesh Pro - Mobile - Distance Field Overlay" shader
-        textMeshPro.fontMaterial.shader = Shader.Find("TextMeshPro/Mobile/Distance Field Overlay");
+        textMeshPro.fontMaterial.shader = fontShader;
     }
 
 
