@@ -4,7 +4,6 @@ from parsing import parse_code_file, get_definitions, parse_python_imports
 from code_documentation import FileDoc
 from overview import generate_file_overview
 from fewshots import class_struct_example
-from langchain_core.exceptions import LangChainException
 import os
 
 class Param(TypedDict):
