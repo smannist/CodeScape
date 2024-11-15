@@ -27,8 +27,8 @@ public class BuildingGenerator : MonoBehaviour
     // Spacing between buildings
     public Vector3 buildingSpacing = new Vector3(10, 0, 10);
 
-	public Shader fontShader;
-	public Material floorMaterial;
+    public Shader fontShader;
+    public GameObject floorPrefab;
 
     // Start method to generate the building
     public void StartCityGeneration()
@@ -114,34 +114,18 @@ public class BuildingGenerator : MonoBehaviour
     {
         Color buildingColor = new Color(Random.value, Random.value, Random.value);
         int floorCount = classes?.Length ?? 0;
-
-        for (int floorIndx = 0; floorIndx < floorCount; floorIndx++)
-        {
-            Class clasObject = classes[floorIndx];
-            LogFileWriter.WriteLog("rendering floor", floorIndx);
-            // Create a new GameObject for each floor
-            GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            // Assign the "Floor" tag to the current game object, tag need to set up manualy
-            floor.tag = "Floor";
-            // Set the size of the floor
-            floor.transform.localScale = cubeSize;
-            // Position the floor at the correct height
+        for (int floorIndx = 0; floorIndx < floorCount; floorIndx++){
             Vector3 floorPosition = buildingPosition + new Vector3(0, floorIndx * (cubeSize.y + spacing), 0);
-            floor.transform.position = floorPosition;
-            floor.transform.rotation = Quaternion.Euler(new Vector3(0, 45, 0)); // Set rotation (e.g., 45 degrees on the Y-axis)
-            //set color
+            Quaternion rotation = Quaternion.Euler(new Vector3(0, 45, 0)); // Set rotation (e.g., 45 degrees on the Y-axis)
+            GameObject floor = Instantiate(floorPrefab, floorPosition, rotation, building.transform);
+            
+            floor.GetComponent<Floor>().classObj = classes[floorIndx];
+            floor.transform.localScale = cubeSize;
             Renderer floorRenderer = floor.GetComponent<Renderer>();
             if (floorRenderer != null)
             {
-            	floorRenderer.material = floorMaterial;
                 floorRenderer.material.color = buildingColor;
             }
-            // Attach the click handling script to each floor
-            //addFloorClickHandler(floor);
-            // Parent the floor to the building
-            floor.transform.parent = building.transform;
-            // Add a label to the floor
-            AddFloorLabel(floor, floorPosition, clasObject.name, floorIndx);
         }
 
     }
@@ -185,30 +169,6 @@ public class BuildingGenerator : MonoBehaviour
         textObject.transform.SetParent(building.transform, false);
     }
     
-    void AddFloorLabel(GameObject floor, Vector3 position, string floorName, int floorIndex)
-    {
-        // Create a new GameObject for the TextMeshPro text
-        GameObject textObject = new GameObject("AlwaysOnTopText");
-        textObject.transform.position = position;
-
-        // Add a TextMeshPro component to the object
-        TextMeshPro textMeshPro = textObject.AddComponent<TextMeshPro>();
-
-        // Set the text properties
-        textMeshPro.text = floorName;
-        textMeshPro.fontSize = 8;
-        textMeshPro.alignment = TextAlignmentOptions.Center;
-        textMeshPro.color = Color.black;
-
-        Vector3 labelPosition = new Vector3(position.x, position.y + (spacing   * floorIndex), position.z);
-        textObject.transform.position = labelPosition;
-        LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
-
-        textObject.transform.SetParent(floor.transform, worldPositionStays: true);
-
-        // Assign the "TextMesh Pro - Mobile - Distance Field Overlay" shader
-        textMeshPro.fontMaterial.shader = fontShader;
-    }
 
 
 }
