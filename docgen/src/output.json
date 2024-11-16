@@ -1,0 +1,752 @@
+{
+    "overview": "This repository is a collection of tools and utilities for analyzing, documenting, and visualizing Python codebases. It includes modules for parsing and analyzing code, generating documentation, and building similarity graphs to identify relationships between code elements. The repository leverages natural language processing and graph algorithms to provide insights into code structure and organization.",
+    "files": [
+        {
+            "name": "/home/mannsami/Documents/projektit/CodeScape/docgen/src/code_documentation.py",
+            "overview": "This file appears to be a part of a code analysis or documentation generation tool. It defines two classes, `FileDoc` and `RepoDoc`, which are used to represent and store documentation for individual source code files and entire repositories, respectively.\n\nThe `FileDoc` class contains information about a single file, including its name, overview, functions, classes, and imports. It also provides methods to extract and count parameters from functions and methods within the file.\n\nThe `RepoDoc` class represents the entire repository, containing an overview and a list of `FileDoc` objects for each file in the repository. It also includes a code graph, which is a networkx.Graph object that represents the relationships between different parts of the codebase.\n\nThe purpose of this file is likely to provide a structured way to store and manipulate documentation for a codebase, making it easier to analyze, visualize, or generate reports about the code.",
+            "functions": [],
+            "classes": [
+                {
+                    "name": "FileDoc",
+                    "description": "Contains the documentation for a single source code file",
+                    "methods": [
+                        {
+                            "name": "__init__",
+                            "description": "Initializes the FileDoc class with optional parameters.",
+                            "params": [
+                                {
+                                    "name": "name",
+                                    "description": "String representing the file's name."
+                                },
+                                {
+                                    "name": "overview",
+                                    "description": "String representing the file's overview."
+                                },
+                                {
+                                    "name": "functions",
+                                    "description": "List of FunctionDescription objects representing the functions in the file."
+                                },
+                                {
+                                    "name": "classes",
+                                    "description": "List of ClassDescription objects representing the classes in the file."
+                                },
+                                {
+                                    "name": "imports",
+                                    "description": "List of strings representing the imports in the file."
+                                }
+                            ],
+                            "returns": "An instance of FileDoc"
+                        },
+                        {
+                            "name": "get_methods",
+                            "description": "Returns a list of methods from the classes in the file.",
+                            "returns": "A list of methods"
+                        },
+                        {
+                            "name": "__count_params",
+                            "description": "Counts the total number of parameters in a list of functions.",
+                            "params": [
+                                {
+                                    "name": "functions",
+                                    "description": "List of functions to count parameters from."
+                                }
+                            ],
+                            "returns": "The total number of parameters"
+                        },
+                        {
+                            "name": "count_method_params",
+                            "description": "Counts the total number of parameters in the methods of the classes in the file.",
+                            "returns": "The total number of parameters"
+                        },
+                        {
+                            "name": "count_function_params",
+                            "description": "Counts the total number of parameters in the functions in the file.",
+                            "returns": "The total number of parameters"
+                        },
+                        {
+                            "name": "as_dict",
+                            "description": "Converts the FileDoc instance into a dictionary format.",
+                            "returns": "A dictionary representation of the FileDoc instance."
+                        }
+                    ]
+                },
+                {
+                    "name": "RepoDoc",
+                    "description": "Contains the documentation for the whole repository.",
+                    "methods": [
+                        {
+                            "name": "__init__",
+                            "description": "Initializes the RepoDoc class with optional parameters.",
+                            "params": [
+                                {
+                                    "name": "overview",
+                                    "description": "String representing the repository's overview."
+                                },
+                                {
+                                    "name": "files",
+                                    "description": "List of FileDoc objects representing the files in the repository."
+                                },
+                                {
+                                    "name": "code_graph",
+                                    "description": "A networkx.Graph object representing the code graph of the repository."
+                                }
+                            ],
+                            "returns": "An instance of RepoDoc"
+                        },
+                        {
+                            "name": "as_dict",
+                            "description": "Converts the RepoDoc instance into a dictionary format.",
+                            "returns": "A dictionary representation of the RepoDoc instance."
+                        }
+                    ]
+                }
+            ],
+            "imports": []
+        },
+        {
+            "name": "/home/mannsami/Documents/projektit/CodeScape/docgen/src/cli.py",
+            "overview": "This file appears to be a part of a documentation generation tool, likely written in Python. It contains functions that handle the validation and parsing of documentation types and command-line arguments. The purpose of this file is to provide utility functions for the main documentation generation process, ensuring that the requested documentation types are valid and that the command-line arguments are properly parsed and formatted for use by the tool.",
+            "functions": [
+                {
+                    "name": "get_supported_types",
+                    "description": "Gets list of recognized documentation types",
+                    "params": [],
+                    "returns": "list of recognized documentation types"
+                },
+                {
+                    "name": "validate_doc_types",
+                    "description": "Converts requested documentation types to a set, and changes the types based on the dependencies between types",
+                    "params": [
+                        {
+                            "name": "types",
+                            "description": "list of requested documentation types"
+                        }
+                    ],
+                    "returns": "set of validated documentation types"
+                },
+                {
+                    "name": "parse_cli_args",
+                    "description": "Parses command-line arguments and returns them as a dictionary",
+                    "params": [
+                        {
+                            "name": "repo_path",
+                            "description": "path to repository or file that will be documented"
+                        },
+                        {
+                            "name": "model",
+                            "description": "used groq model ID (https://console.groq.com/docs/models)"
+                        },
+                        {
+                            "name": "output",
+                            "description": "path to the json file that the tool will generate"
+                        },
+                        {
+                            "name": "types",
+                            "description": "list of documentation types that will be added to output"
+                        },
+                        {
+                            "name": "plot-graph",
+                            "description": "create a plot of generated code_graph"
+                        }
+                    ],
+                    "returns": "a dictionary of parsed command-line arguments"
+                }
+            ],
+            "classes": [],
+            "imports": []
+        },
+        {
+            "name": "/home/mannsami/Documents/projektit/CodeScape/docgen/src/overview.py",
+            "overview": "This file appears to contain functions for automatically generating descriptions of source code files and git repositories based on provided class and function descriptions, as well as JSON data. The functions utilize a language model to generate these descriptions, suggesting that the file is part of a larger system for analyzing and summarizing codebases.",
+            "functions": [
+                {
+                    "name": "generate_file_overview",
+                    "description": "Generates a description of the purpose of a source code file based on the provided class and function descriptions.",
+                    "params": [
+                        {
+                            "name": "llm",
+                            "description": "The language model to use for generating the description."
+                        },
+                        {
+                            "name": "classes",
+                            "description": "A list of class descriptions."
+                        },
+                        {
+                            "name": "funcs",
+                            "description": "A list of function descriptions."
+                        }
+                    ],
+                    "returns": "A string describing the purpose of the source code file."
+                },
+                {
+                    "name": "generate_repository_overview",
+                    "description": "Generates a brief overview of a git repository based on the provided JSON data.",
+                    "params": [
+                        {
+                            "name": "llm",
+                            "description": "The language model to use for generating the overview"
+                        },
+                        {
+                            "name": "json_data",
+                            "description": "The JSON data containing the file overviews"
+                        }
+                    ],
+                    "returns": "A brief description of the repository, maximum 100 words."
+                }
+            ],
+            "classes": [],
+            "imports": []
+        },
+        {
+            "name": "/home/mannsami/Documents/projektit/CodeScape/docgen/src/code_description.py",
+            "overview": "This file appears to be a Python module designed to automatically generate documentation for Python source code files. It uses a large language model (LLM) to generate descriptions of functions, classes, and other code elements. The module provides various functions to describe functions, classes, and entire files, as well as to handle exceptions and fallbacks when the LLM is unable to generate descriptions. The generated descriptions can be used to create documentation for the code, such as API documentation or code comments.",
+            "functions": [
+                {
+                    "name": "describe_file_funcs",
+                    "description": "Describe functions in a file.",
+                    "params": [
+                        {
+                            "name": "llm",
+                            "description": "Language model to use for description."
+                        },
+                        {
+                            "name": "filepath",
+                            "description": "Path to the file to parse."
+                        }
+                    ],
+                    "returns": "A list of function descriptions."
+                },
+                {
+                    "name": "pass_batch_to_llm",
+                    "description": "Invokes llm for each value in batch and returns the transformed list. If an exception occurs, the value is instead computed with fallback_func",
+                    "params": [
+                        {
+                            "name": "llm",
+                            "description": "the language model to invoke"
+                        },
+                        {
+                            "name": "batch",
+                            "description": "the list of values to transform"
+                        },
+                        {
+                            "name": "fallback_func",
+                            "description": "the function to use if an exception occurs"
+                        }
+                    ],
+                    "returns": "the transformed list"
+                },
+                {
+                    "name": "__get_fallback_func_describer",
+                    "description": "Given an llm, returns a fallback function that tries to get just the name and description of a function without structured output",
+                    "params": [
+                        {
+                            "name": "llm",
+                            "description": "the llm to use for the fallback function"
+                        }
+                    ],
+                    "returns": "A fallback function that tries to get just the name and description of a function without structured output"
+                },
+                {
+                    "name": "__get_fallback_class_describer",
+                    "description": "Returns a fallback function to get the name and description of a class without structured output",
+                    "params": [
+                        {
+                            "name": "llm",
+                            "description": "the llm to use for the fallback function"
+                        }
+                    ],
+                    "returns": "A fallback function that takes a class as input and returns a dictionary with the class name, description, and an error message"
+                },
+                {
+                    "name": "describe_funcs",
+                    "description": "Describe functions in source code, including their arguments.",
+                    "params": [
+                        {
+                            "name": "llm",
+                            "description": "Language model to use for description"
+                        },
+                        {
+                            "name": "parsed_code",
+                            "description": "Parsed code containing source code and tree structure"
+                        }
+                    ],
+                    "returns": "List of function descriptions"
+                },
+                {
+                    "name": "describe_file_classes",
+                    "description": "Describes the classes in a given file.",
+                    "params": [
+                        {
+                            "name": "llm",
+                            "description": "The language model to use for description."
+                        },
+                        {
+                            "name": "filepath",
+                            "description": "The path to the file to parse."
+                        }
+                    ],
+                    "returns": "A description of the classes in the file."
+                },
+                {
+                    "name": "describe_classes",
+                    "description": "Generates descriptions for classes in the given parsed code.",
+                    "params": [
+                        {
+                            "name": "llm",
+                            "description": "The large language model to use for generating descriptions."
+                        },
+                        {
+                            "name": "parsed_code",
+                            "description": "A tuple containing the source code and the parsed tree of the code."
+                        }
+                    ],
+                    "returns": "A list of descriptions for the classes in the code."
+                },
+                {
+                    "name": "describe_file",
+                    "description": "Generates a FileDoc object describing the contents of a Python file.",
+                    "params": [
+                        {
+                            "name": "llm",
+                            "description": "A language model used for generating descriptions"
+                        },
+                        {
+                            "name": "filepath",
+                            "description": "The path to the Python file to be described"
+                        },
+                        {
+                            "name": "include_funcs",
+                            "description": "Whether to include function descriptions in the output (default: True)"
+                        },
+                        {
+                            "name": "include_classes",
+                            "description": "Whether to include class descriptions in the output (default: True)"
+                        },
+                        {
+                            "name": "include_overview",
+                            "description": "Whether to include a file overview in the output (default: True)"
+                        },
+                        {
+                            "name": "include_imports",
+                            "description": "Whether to include import descriptions in the output (default: True)"
+                        }
+                    ],
+                    "returns": "A FileDoc object containing information about the file"
+                }
+            ],
+            "classes": [
+                {
+                    "name": "Param",
+                    "description": "A TypedDict representing a parameter with attributes for name and description."
+                },
+                {
+                    "name": "FunctionDescription",
+                    "description": "A TypedDict representing a function description with attributes for name, parameters, description, and return value."
+                },
+                {
+                    "name": "ClassDescription",
+                    "description": "A TypedDict representing a class description with attributes for name, methods, and description.",
+                    "methods": []
+                }
+            ],
+            "imports": []
+        },
+        {
+            "name": "/home/mannsami/Documents/projektit/CodeScape/docgen/src/fewshots.py",
+            "overview": "You haven't provided the class and function descriptions. Please provide the descriptions, and I'll be happy to help you understand the purpose of the source code file.",
+            "functions": [],
+            "classes": [],
+            "imports": []
+        },
+        {
+            "name": "/home/mannsami/Documents/projektit/CodeScape/docgen/src/main.py",
+            "overview": "This file appears to be a part of a documentation generation tool for software repositories. It contains functions that generate documentation for a repository based on provided command line arguments and print statistics about the generated documentation. The file likely relies on a large language model (LLM) to generate the documentation, suggesting that it uses natural language processing (NLP) techniques to create human-readable documentation for the repository.",
+            "functions": [
+                {
+                    "name": "describe_repo",
+                    "description": "Generates a documentation for a repository based on the provided CLI arguments.",
+                    "params": [
+                        {
+                            "name": "llm",
+                            "description": "A large language model used for generating documentation."
+                        },
+                        {
+                            "name": "cli_args",
+                            "description": "A dictionary containing command line arguments, including repository path and types of documentation to generate."
+                        }
+                    ],
+                    "returns": "A RepoDoc object containing the generated documentation."
+                },
+                {
+                    "name": "print_stats",
+                    "description": "Prints statistics about the repository document.",
+                    "params": [
+                        {
+                            "name": "repo_doc",
+                            "description": "The repository document to print statistics about."
+                        }
+                    ],
+                    "returns": "None"
+                }
+            ],
+            "classes": [],
+            "imports": []
+        },
+        {
+            "name": "/home/mannsami/Documents/projektit/CodeScape/docgen/src/parsing.py",
+            "overview": "This file appears to be a utility module for parsing and analyzing Python code using the tree-sitter library. It provides a set of functions for traversing syntax trees, extracting nodes of specific types, converting nodes to strings, and parsing Python code files. The module also includes functions for extracting definitions and imports from a syntax tree.\n\nThe functions in this module can be used for various tasks such as code analysis, code generation, and code refactoring. For example, the `parse_code_file` function can be used to parse a Python code file and extract its syntax tree, which can then be analyzed using the other functions in the module.\n\nSome possible use cases for this module include:\n\n* Code analysis tools: The functions in this module can be used to analyze Python code and extract information such as function definitions, variable declarations, and import statements.\n* Code generation tools: The functions in this module can be used to generate Python code by traversing a syntax tree and converting nodes to strings.\n* Code refactoring tools: The functions in this module can be used to refactor Python code by analyzing the syntax tree and making changes to the code.\n\nOverall, this module provides a set of useful functions for working with Python code and syntax trees, and can be used as a building block for a variety of code analysis and generation tools.",
+            "functions": [
+                {
+                    "name": "traverse_top_level",
+                    "description": "Yields children of translation_unit in syntax tree",
+                    "params": [
+                        {
+                            "name": "tree",
+                            "description": "syntax tree to traverse"
+                        }
+                    ],
+                    "returns": "children of translation_unit in syntax tree"
+                },
+                {
+                    "name": "traverse_tree",
+                    "description": "Yields all nodes of a syntax tree",
+                    "params": [
+                        {
+                            "name": "tree",
+                            "description": "the syntax tree to traverse"
+                        }
+                    ],
+                    "returns": "a generator yielding all nodes of the syntax tree"
+                },
+                {
+                    "name": "get_nodes_of_type",
+                    "description": "Returns a list of nodes of a specified type from a tree.",
+                    "params": [
+                        {
+                            "name": "tree",
+                            "description": "The tree to search for nodes."
+                        },
+                        {
+                            "name": "node_type",
+                            "description": "The type of nodes to search for."
+                        },
+                        {
+                            "name": "recursive",
+                            "description": "Whether to search recursively or only at the top level.",
+                            "default": "False"
+                        }
+                    ],
+                    "returns": "A list of nodes of the specified type."
+                },
+                {
+                    "name": "node_to_str",
+                    "description": "Converts a node object to a string.",
+                    "params": [
+                        {
+                            "name": "node",
+                            "description": "The node object to be converted."
+                        }
+                    ],
+                    "returns": "A string representation of the node object."
+                },
+                {
+                    "name": "get_definitions",
+                    "description": "Returns a list of definitions of a specific type from a tree.",
+                    "params": [
+                        {
+                            "name": "tree",
+                            "description": "The tree to search for definitions."
+                        },
+                        {
+                            "name": "definition_type",
+                            "description": "The type of definitions to search for."
+                        }
+                    ],
+                    "returns": "A list of definitions as strings."
+                },
+                {
+                    "name": "parse_code_file",
+                    "description": "Parses a Python code file using the tree-sitter library.",
+                    "params": [
+                        {
+                            "name": "filepath",
+                            "description": "The path to the Python code file to parse."
+                        }
+                    ],
+                    "returns": "A tuple containing the source code and the parsed syntax tree."
+                },
+                {
+                    "name": "parse_python_imports",
+                    "description": "Parses a syntax tree to extract names of python files imported within a given base path.",
+                    "params": [
+                        {
+                            "name": "tree",
+                            "description": "The syntax tree to parse."
+                        },
+                        {
+                            "name": "base_path",
+                            "description": "The base path to consider for python file imports."
+                        }
+                    ],
+                    "returns": "A list of paths to python files imported in the tree."
+                }
+            ],
+            "classes": [],
+            "imports": []
+        },
+        {
+            "name": "/home/mannsami/Documents/projektit/CodeScape/docgen/src/similarity_graph.py",
+            "overview": "This file appears to be a module for building and visualizing a similarity graph of code elements based on their descriptions. The graph represents the similarity between different code elements, such as classes and functions, by connecting nodes that have a distance below a certain threshold.\n\nThe module provides several functions for calculating document distances, building the similarity graph, plotting the graph, converting the graph to a dictionary representation, and creating a similarity graph of code elements based on their descriptions.\n\nThe primary purpose of this module is to help developers visualize the relationships between different code elements and identify similarities between them. This can be useful for tasks such as code refactoring, code reuse, and code analysis.\n\nThe module seems to be designed to work with a list of file documentation objects containing classes and functions, and it uses a combination of natural language processing (NLP) and graph algorithms to build the similarity graph. The graph can be visualized using the `plot_graph` function, which provides a visual representation of the relationships between the code elements.",
+            "functions": [
+                {
+                    "name": "get_document_distances",
+                    "description": "Returns a dictionary where each doc_id has a list of (other_id, distance_from_other_id) tuples",
+                    "params": [
+                        {
+                            "name": "doc_ids",
+                            "description": "list of document ids"
+                        },
+                        {
+                            "name": "docs",
+                            "description": "list of documents"
+                        },
+                        {
+                            "name": "max_result_count",
+                            "description": "maximum number of results to return"
+                        }
+                    ],
+                    "returns": "Dictionary of document distances"
+                },
+                {
+                    "name": "build_similarity_graph",
+                    "description": "Builds a networkx graph where nodes with distance < dist_treshold are connected.",
+                    "params": [
+                        {
+                            "name": "dists",
+                            "description": "A dictionary of node IDs and their corresponding distances to other nodes."
+                        },
+                        {
+                            "name": "dist_treshold",
+                            "description": "The maximum distance between two nodes to be considered connected."
+                        }
+                    ],
+                    "returns": "A networkx graph where nodes with distance < dist_treshold are connected."
+                },
+                {
+                    "name": "plot_graph",
+                    "description": "Plots a graph with edge weights and labels.",
+                    "params": [
+                        {
+                            "name": "graph",
+                            "description": "The graph to be plotted."
+                        }
+                    ],
+                    "returns": "A visual representation of the graph."
+                },
+                {
+                    "name": "graph_to_dict",
+                    "description": "Converts a graph object into a dictionary representation.",
+                    "params": [
+                        {
+                            "name": "graph",
+                            "description": "The graph object to be converted."
+                        }
+                    ],
+                    "returns": "A dictionary containing the nodes and edges of the graph."
+                },
+                {
+                    "name": "create_code_graph",
+                    "description": "Creates a similarity graph of code elements based on their descriptions.",
+                    "params": [
+                        {
+                            "name": "filedocs",
+                            "description": "A list of file documentation objects containing classes and functions."
+                        }
+                    ],
+                    "returns": "A similarity graph of code elements."
+                }
+            ],
+            "classes": [],
+            "imports": []
+        },
+        {
+            "name": "/home/mannsami/Documents/projektit/CodeScape/docgen/src/util.py",
+            "overview": "This file appears to be a utility module for handling JSON data and file operations. It provides functions for saving data to a JSON file, loading JSON data from a file, and listing files within a directory based on a specified condition. The functions seem to be designed to be reusable and can be imported into other parts of a larger application to perform these common tasks.",
+            "functions": [
+                {
+                    "name": "save_to_json",
+                    "description": "Saves data to a JSON file.",
+                    "params": [
+                        {
+                            "name": "data",
+                            "description": "The data to be saved."
+                        },
+                        {
+                            "name": "filename",
+                            "description": "The name of the JSON file."
+                        }
+                    ],
+                    "returns": "None"
+                },
+                {
+                    "name": "load_json",
+                    "description": "Loads JSON data from a file.",
+                    "params": [
+                        {
+                            "name": "filename",
+                            "description": "The path to the JSON file."
+                        }
+                    ],
+                    "returns": "The JSON data as a Python object."
+                },
+                {
+                    "name": "list_files_if",
+                    "description": "Returns a list of filenames within base_path for which condition_func returns True. base_path can also be a single file.",
+                    "params": [
+                        {
+                            "name": "base_path",
+                            "description": "the path to the directory or file to search in"
+                        },
+                        {
+                            "name": "condition_func",
+                            "description": "a function that takes a filename and returns True if the file should be included in the result"
+                        }
+                    ],
+                    "returns": "a list of filenames for which condition_func returns True"
+                }
+            ],
+            "classes": [],
+            "imports": []
+        },
+        {
+            "name": "/home/mannsami/Documents/projektit/CodeScape/docgen/code_samples/test_file.py",
+            "overview": "This file appears to be a collection of mathematical functions and classes, likely part of a larger calculator or mathematical utility program. It includes two classes, `Calculator` and `ScientificCalculator`, which provide methods for performing basic arithmetic operations and scientific calculations, respectively. Additionally, the file contains two standalone functions, `greet_user` and `calculate_factorial`, which seem unrelated to the calculator classes but may be used elsewhere in the program.\n\nThe `Calculator` class provides methods for basic arithmetic operations such as addition, subtraction, multiplication, and division. The `ScientificCalculator` class extends the functionality with methods for calculating powers and square roots.\n\nThe `greet_user` function generates a personalized greeting message, while the `calculate_factorial` function calculates the factorial of a given non-negative integer.\n\nOverall, this file seems to be a utility module that provides a range of mathematical functions and classes that can be used in various applications.",
+            "functions": [
+                {
+                    "name": "greet_user",
+                    "description": "Greet the user by their name.",
+                    "params": [
+                        {
+                            "name": "name",
+                            "description": "The name of the user to greet."
+                        }
+                    ],
+                    "returns": "A personalized greeting message."
+                },
+                {
+                    "name": "calculate_factorial",
+                    "description": "Calculate the factorial of a non-negative integer.",
+                    "params": [
+                        {
+                            "name": "n",
+                            "description": "A non-negative integer."
+                        }
+                    ],
+                    "returns": "The factorial of the input integer."
+                }
+            ],
+            "classes": [
+                {
+                    "name": "Calculator",
+                    "description": "A simple calculator class that performs basic arithmetic operations.",
+                    "methods": [
+                        {
+                            "name": "add",
+                            "description": "Add two numbers and return the result.",
+                            "params": [
+                                {
+                                    "name": "a",
+                                    "description": "The first number to add."
+                                },
+                                {
+                                    "name": "b",
+                                    "description": "The second number to add."
+                                }
+                            ],
+                            "returns": "The sum of the two numbers."
+                        },
+                        {
+                            "name": "subtract",
+                            "description": "Subtract the second number from the first and return the result.",
+                            "params": [
+                                {
+                                    "name": "a",
+                                    "description": "The first number."
+                                },
+                                {
+                                    "name": "b",
+                                    "description": "The second number to subtract."
+                                }
+                            ],
+                            "returns": "The difference between the two numbers."
+                        },
+                        {
+                            "name": "multiply",
+                            "description": "Multiply two numbers and return the result.",
+                            "params": [
+                                {
+                                    "name": "a",
+                                    "description": "The first number to multiply."
+                                },
+                                {
+                                    "name": "b",
+                                    "description": "The second number to multiply."
+                                }
+                            ],
+                            "returns": "The product of the two numbers."
+                        },
+                        {
+                            "name": "divide",
+                            "description": "Divide the first number by the second and return the result.",
+                            "params": [
+                                {
+                                    "name": "a",
+                                    "description": "The dividend."
+                                },
+                                {
+                                    "name": "b",
+                                    "description": "The divisor."
+                                }
+                            ],
+                            "returns": "The quotient of the two numbers."
+                        }
+                    ]
+                },
+                {
+                    "name": "ScientificCalculator",
+                    "description": "An advanced calculator that performs scientific calculations.",
+                    "methods": [
+                        {
+                            "name": "power",
+                            "description": "Calculate the power of a number.",
+                            "params": [
+                                {
+                                    "name": "base",
+                                    "description": "The base number."
+                                },
+                                {
+                                    "name": "exponent",
+                                    "description": "The exponent to which the base is raised."
+                                }
+                            ],
+                            "returns": "The result of the power operation."
+                        },
+                        {
+                            "name": "square_root",
+                            "description": "Calculate the square root of a number.",
+                            "params": [
+                                {
+                                    "name": "x",
+                                    "description": "The number for which to calculate the square root."
+                                }
+                            ],
+                            "returns": "The square root of the input number."
+                        }
+                    ]
+                }
+            ],
+            "imports": []
+        }
+    ],
+    "code_graph": {}
+}
