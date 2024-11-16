@@ -1,4 +1,5 @@
 using Assets.Entities;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -28,8 +29,8 @@ public class JsonReader : MonoBehaviour
 		#endif
     }
 
-	
-	private void LoadJsonFile(string path){
+	private void LoadJsonFile(string path)
+    {
         if (File.Exists(path))
         {
             string json = File.ReadAllText(path);
@@ -42,24 +43,44 @@ public class JsonReader : MonoBehaviour
             Debug.LogError("JSON file not found at " + filePath);
         }
 	}
-	
-	private IEnumerator LoadJsonOverHttp(string uri)
+
+    private IEnumerator LoadJsonOverHttp(string uri)
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
         {
             // Request and wait for the desired page.
             yield return webRequest.SendWebRequest();
-            
+
             switch (webRequest.result)
             {
                 case UnityWebRequest.Result.ConnectionError:
                 case UnityWebRequest.Result.DataProcessingError:
                 case UnityWebRequest.Result.ProtocolError:
-                    Debug.LogError(uri + ": Error: " + webRequest.error);
+                    Debug.LogError($"{uri}: Error: {webRequest.error}");
                     break;
                 case UnityWebRequest.Result.Success:
-                    fileData = JsonConvert.DeserializeObject<FileData>(webRequest.downloadHandler.text);
-                    fileLoaded = true;
+                    bool success = false;
+
+                    try
+                    {
+                        fileData = JsonConvert.DeserializeObject<FileData>(webRequest.downloadHandler.text);
+                        fileLoaded = true;
+                        success = true;
+                        Debug.Log($"Successfully loaded JSON data from {uri}");
+                    }
+                    catch (JsonException ex)
+                    {
+                        Debug.LogError($"Failed to deserialize JSON from {uri}");
+                    }
+
+                    // Fallback to example json instead
+                    if (!success)
+                    {
+                        Debug.LogWarning($"Attempting to load example JSON as a fallback");
+                        string filePath = Path.Combine(Directory.GetCurrentDirectory(), "examples", "example_output.json");
+                        yield return LoadJsonOverHttp(filePath);
+                    }
+
                     break;
             }
         }

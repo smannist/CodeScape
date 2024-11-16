@@ -9,7 +9,8 @@ import {
   AccordionDetails,
   Box,
   ListItemIcon,
-	Icon,
+  Icon,
+  SvgIconProps,
 } from "@mui/material";
 
 import { blue } from "@mui/material/colors";
@@ -23,33 +24,49 @@ import FileList from "./FileList";
 
 import { RepoDescription } from "../types/description";
 
-interface Props {
+interface SideMenuProps {
   documentation: RepoDescription;
 }
 
-const SideMenuButton = ({title, to_url, icon} : Props): JSX.Element => {
-return  (<Box
-        sx={{
-          boxShadow: 2,
-          mb: 2,
-          borderRadius: 1,
-          border: "1px solid #ccc",
-        }}
-      >
-	<ListItemButton component={Link} to={to_url} sx={{ padding: "12px 16px" }}>
-          <ListItemIcon>
-            <Icon component={icon} />
-          </ListItemIcon>
-          <ListItemText primary={title} />
-        </ListItemButton>
-      </Box>)
+interface SideMenuButtonProps {
+  title: string;
+  to_url: string;
+  icon: React.ElementType<SvgIconProps>;
 }
 
-const SideMenu = ({ documentation }: Props): JSX.Element => {
+const SideMenuButton = ({
+  title,
+  to_url,
+  icon,
+}: SideMenuButtonProps): JSX.Element => {
+  return (
+    <Box
+      sx={{
+        boxShadow: 2,
+        mb: 2,
+        borderRadius: 1,
+        border: "1px solid #ccc",
+      }}
+    >
+      <ListItemButton
+        component={Link}
+        to={to_url}
+        sx={{ padding: "12px 16px" }}
+      >
+        <ListItemIcon>
+          <Icon component={icon} />
+        </ListItemIcon>
+        <ListItemText primary={title} />
+      </ListItemButton>
+    </Box>
+  );
+};
+
+const SideMenu = ({ documentation }: SideMenuProps): JSX.Element => {
   return (
     <List sx={{ width: 400, height: "100vh", overflow: "hidden" }}>
-    <SideMenuButton title="Home" to_url="/" icon={HomeIcon} />
-    <SideMenuButton title="Code City" to_url="/codecity" icon={CityIcon} />
+      <SideMenuButton title="Home" to_url="/" icon={HomeIcon} />
+      <SideMenuButton title="Code City" to_url="/codecity" icon={CityIcon} />
       <Accordion
         sx={{
           border: "1px solid #ccc",

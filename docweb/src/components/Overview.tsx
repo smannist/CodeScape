@@ -1,7 +1,7 @@
 import { Typography, Box, Link } from "@mui/material";
 
 interface Props {
-  overview: string;
+  overview: string | undefined;
 }
 
 const Overview = ({ overview }: Props): JSX.Element => {
