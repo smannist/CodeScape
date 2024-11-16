@@ -17,12 +17,12 @@ const App = () => {
   useEffect(() => {
     const fetchDocumentation = async () => {
       try {
-        const response = await fetch("./output.json");
+        const response = await fetch("/output.json");
         const doc = await response.json();
         setDocumentation(doc);
       } catch {
         try {
-          const response = await fetch("./examples/example_output.json");
+          const response = await fetch("/examples/example_output.json");
           const doc = await response.json();
           setDocumentation(doc);
         } catch (error) {
