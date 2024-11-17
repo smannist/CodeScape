@@ -140,7 +140,7 @@ class ClassFewShotPromptBuilder:
         - Do not include any of the given examples in your final JSON output.
         - If a method returns a print statement, do not include a "returns" field in its description.
 
-        Here are some example Python classes and returned descriptions:
+        Here are some example classes and returned descriptions:
         """
 
         self.suffix = suffix or """
