@@ -406,8 +406,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f940f7023eb9375c9731e2f40bc016d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mainCamera: {fileID: 0}
   doubleClickThreshold: 0.3
+  allowCameraControl: 0
+  turnSpeed: 4
 --- !u!4 &418328078
 Transform:
   m_ObjectHideFlags: 0

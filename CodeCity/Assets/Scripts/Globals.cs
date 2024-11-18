@@ -12,4 +12,5 @@ public static class Globals
 	
 	//store info about which floor was entered when moving to FloorInterior
 	public static Class enteredFloor;
+	public static Color floorColor;
 }

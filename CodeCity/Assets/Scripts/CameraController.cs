@@ -5,12 +5,17 @@ public class CameraController : MonoBehaviour
 
     // Time threshold for double-click detection (in seconds)
     public float doubleClickThreshold = 0.3f;
+    public bool allowCameraControl = false;
+    public float turnSpeed = 4.0f;
 
-	// Store the time of the last click
+    // Store the time of the last click
     private float lastClickTime = 0f;
     private Vector3 initialCameraPosition;
     private Quaternion initialCameraRotation;
-	private Camera mainCamera;
+    private Camera mainCamera;
+    
+    //Horizontal camera rotation
+    private float yaw = 0.0f;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -27,6 +32,18 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(allowCameraControl){
+            handleMouseMovements();
+        }
+        handleClicks();
+    }
+    
+    void handleMouseMovements(){
+        yaw += turnSpeed * Input.GetAxis("Mouse X");
+        mainCamera.transform.eulerAngles = new Vector3(0.0f, yaw, 0.0f);
+    }
+
+	void handleClicks(){
         // Detect mouse clicks (or taps on mobile devices)
         if (Input.GetMouseButtonDown(0)) // Left mouse click
         {
@@ -45,12 +62,12 @@ public class CameraController : MonoBehaviour
                 if (currentTime - lastClickTime <= doubleClickThreshold)
                 {
                     Debug.Log("Double-click detected on: " + hitObj.name + " (tag:" + hitObj.tag + ")");
-                    hitObj.SendMessage("OnDoubleClick");
+                    hitObj.SendMessage("OnDoubleClick", null, SendMessageOptions.DontRequireReceiver);
                 }
                 else
                 {
                     Debug.Log("Single-click detected on: " + hitObj.name + " (tag:" + hitObj.tag + ")");
-                    hitObj.SendMessage("OnClick");
+                    hitObj.SendMessage("OnClick", null, SendMessageOptions.DontRequireReceiver);
                 }
 
                 // Update the last click time
@@ -62,8 +79,7 @@ public class CameraController : MonoBehaviour
                 ZoomOut();
             }
         }
-    }
-
+	}
 
     // Method to reset the camera to the initial position and rotation
     public void ZoomOut()
