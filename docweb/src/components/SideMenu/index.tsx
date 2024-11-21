@@ -9,7 +9,7 @@ import {
   AccordionDetails,
   Box,
   ListItemIcon,
-	Icon,
+  Icon,
 } from "@mui/material";
 
 import { blue } from "@mui/material/colors";
@@ -27,29 +27,41 @@ interface Props {
   documentation: RepoDescription;
 }
 
-const SideMenuButton = ({title, to_url, icon} : Props): JSX.Element => {
-return  (<Box
-        sx={{
-          boxShadow: 2,
-          mb: 2,
-          borderRadius: 1,
-          border: "1px solid #ccc",
-        }}
+const SideMenuButton = ({ title, to_url, icon }: Props): JSX.Element => {
+  return (
+    <Box
+      sx={{
+        boxShadow: 2,
+        mb: 2,
+        borderRadius: 1,
+        border: "1px solid #ccc",
+      }}
+    >
+      <ListItemButton
+        component={Link}
+        to={to_url}
+        sx={{ padding: "12px 16px" }}
       >
-	<ListItemButton component={Link} to={to_url} sx={{ padding: "12px 16px" }}>
-          <ListItemIcon>
-            <Icon component={icon} />
-          </ListItemIcon>
-          <ListItemText primary={title} />
-        </ListItemButton>
-      </Box>)
-}
+        <ListItemIcon>
+          <Icon component={icon} />
+        </ListItemIcon>
+        <ListItemText primary={title} />
+      </ListItemButton>
+    </Box>
+  );
+};
 
 const SideMenu = ({ documentation }: Props): JSX.Element => {
   return (
-    <List sx={{ width: 400, height: "100vh", overflow: "hidden" }}>
-    <SideMenuButton title="Home" to_url="/" icon={HomeIcon} />
-    <SideMenuButton title="Code City" to_url="/codecity" icon={CityIcon} />
+    <List
+      sx={{
+        width: 400,
+        height: "100vh",
+        overflow: "auto",
+      }}
+    >
+      <SideMenuButton title="Home" to_url="/" icon={HomeIcon} />
+      <SideMenuButton title="Code City" to_url="/codecity" icon={CityIcon} />
       <Accordion
         sx={{
           border: "1px solid #ccc",
@@ -67,7 +79,6 @@ const SideMenu = ({ documentation }: Props): JSX.Element => {
         </AccordionSummary>
         <AccordionDetails
           sx={{
-            maxHeight: "calc(100vh - 150px)",
             overflowY: "auto",
           }}
         >

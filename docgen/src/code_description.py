@@ -1,10 +1,10 @@
+import os
 from typing_extensions import Annotated, TypedDict, List, Optional
 from langchain_core.prompts import ChatPromptTemplate
 from parsing import parse_code_file, get_definitions, parse_python_imports
 from code_documentation import FileDoc
 from overview import generate_file_overview
-from fewshots import class_struct_example
-import os
+from builders import ClassFewShotPromptBuilder
 
 class Param(TypedDict):
     name: Annotated[
@@ -110,11 +110,12 @@ def describe_file_classes(llm, filepath):
 
 def describe_classes(llm, parsed_code):
     (src, tree) = parsed_code
-    system = class_struct_example
-    prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{input}")])
-    few_shot_llm = prompt | llm.with_structured_output(ClassDescription, method="json_mode")
-    inputs = [{'input': given_class} for given_class in get_definitions(tree, definition_type="class_definition")]
-    return pass_batch_to_llm(few_shot_llm, inputs, __get_fallback_class_describer(llm))
+    builder = ClassFewShotPromptBuilder()
+    prompt = builder.create_prompt()
+    few_shot_llm = prompt | llm.with_structured_output(
+        ClassDescription, method="json_mode")
+    return pass_batch_to_llm(few_shot_llm, get_definitions(
+        tree, definition_type="class_definition"), __get_fallback_class_describer(llm))
 
 
 def describe_file(llm, filepath, include_funcs=True,
