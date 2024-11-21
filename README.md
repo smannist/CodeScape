@@ -1,5 +1,7 @@
 # CodeScape
 
+Demo app is running at [Render](https://codescape.onrender.com/)
+
 ## Setup Instructions
 
 1. **Create a `.env` file** in src directory.
