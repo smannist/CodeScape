@@ -54,6 +54,21 @@ class TreeReader:
     def get_classes(self):
         return get_definitions(self.tree, definition_type="class_definition")
 
+    def get_imports(self, base_path):
+        """Given a base_path, returns a list of names of python files imported in self.tree.
+        Only python files within base_path are considered"""
+        imports = get_nodes_of_type(self.tree, "import_statement", recursive=True)
+        import_names = [node.child_by_field_name("name") for node in imports]
+        imports_from = get_nodes_of_type(self.tree, "import_from_statement", recursive=True)
+        import_names += [node.child_by_field_name("module_name") for node in imports_from]
+        import_files = []
+        for module in import_names:
+            path = os.path.join(base_path, node_to_str(module).replace('.', '/') + ".py")
+            if os.path.exists(path):
+                import_files.append(path)
+        return import_files
+
+
     def get_tree(self):
         return self.tree
 
@@ -87,18 +102,4 @@ def is_file_parseable(filepath):
     extension = filepath[filepath.rfind('.'):]
     return extension in __EXTENSION_TO_LANGUAGE
 
-
-def parse_python_imports(tree, base_path):
-    """Given a syntax tree and a base_path, returns a list of names of python files imported in the tree.
-    Only python files within base_path are considered"""
-    imports = get_nodes_of_type(tree, "import_statement", recursive=True)
-    import_names = [node.child_by_field_name("name") for node in imports]
-    imports_from = get_nodes_of_type(tree, "import_from_statement", recursive=True)
-    import_names += [node.child_by_field_name("module_name") for node in imports_from]
-    import_files = []
-    for module in import_names:
-        path = os.path.join(base_path, node_to_str(module).replace('.', '/') + ".py")
-        if os.path.exists(path):
-            import_files.append(path)
-    return import_files
 

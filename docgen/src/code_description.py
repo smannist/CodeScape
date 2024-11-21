@@ -1,7 +1,7 @@
 import os
 from typing_extensions import Annotated, TypedDict, List, Optional
 from langchain_core.prompts import ChatPromptTemplate
-from parsing import parse_code_file, get_definitions, parse_python_imports
+from parsing import parse_code_file
 from code_documentation import FileDoc
 from overview import generate_file_overview
 from builders import ClassFewShotPromptBuilder
@@ -108,8 +108,7 @@ def describe_file_classes(llm, filepath):
     return describe_classes(llm, parse_code_file(filepath))
 
 
-def describe_classes(llm, parsed_code):
-    (src, tree) = parsed_code
+def describe_classes(llm, tree_reader):
     builder = ClassFewShotPromptBuilder()
     prompt = builder.create_prompt()
     few_shot_llm = prompt | llm.with_structured_output(
@@ -125,7 +124,7 @@ def describe_file(llm, filepath, include_funcs=True,
     filedoc_args = {"name": filepath, "classes": [], "funcs": [], "imports": []}
     if include_imports:
         base_path = os.path.split(filepath)[0]
-        filedoc_args["imports"] = parse_python_imports(tree_reader.get_tree(), base_path) 
+        filedoc_args["imports"] = tree_reader.get_imports(base_path)
     if include_classes:
         filedoc_args["classes"] = describe_classes(llm, tree_reader)
     if include_funcs:
