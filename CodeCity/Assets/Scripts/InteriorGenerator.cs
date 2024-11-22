@@ -25,7 +25,7 @@ public class InteriorGenerator : MonoBehaviour
 		floor.GetComponent<Renderer>().material.color = Globals.floorColor;
 		
 		float maxDoorsPerWall = 8;
-		int doorsLeft = floorClass.functions.Length;
+		int doorsLeft = floorClass.methods.Length;
 		int doorIndex = 0;
 		for (int row = 0;row<4 && doorsLeft > 0;row++){
 			Transform rowStart = doorRowStarts[row].transform;
@@ -43,7 +43,7 @@ public class InteriorGenerator : MonoBehaviour
 			GameObject obj = Instantiate(doorObject, pos, rotation);
 			obj.transform.parent = transform;
 			
-			string name = floorClass.functions[i + firstFuncIdx].name;
+			string name = floorClass.methods[i + firstFuncIdx].name;
 			obj.GetComponentInChildren<TMPro.TextMeshPro>().text = name;
 		}
 	}

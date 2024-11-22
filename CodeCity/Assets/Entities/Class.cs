@@ -10,7 +10,7 @@ namespace Assets.Entities
 
         public string description { get; set; }
 
-        public Function[] functions { get; set; }
+        public Function[] methods { get; set; }
 
     }
 }
