@@ -4,3 +4,4 @@ tree-sitter-python
 chromadb
 networkx
 matplotlib
+tree-sitter-c-sharp

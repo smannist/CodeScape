@@ -1,7 +1,7 @@
 import os
 from typing_extensions import Annotated, TypedDict, List, Optional
 from langchain_core.prompts import ChatPromptTemplate
-from parsing import parse_code_file, get_definitions, parse_python_imports
+from parsing import parse_code_file
 from code_documentation import FileDoc
 from overview import generate_file_overview
 from builders import ClassFewShotPromptBuilder
@@ -93,8 +93,7 @@ def __get_fallback_class_describer(llm):
         return {"name": name, "description": description, "error": "main prompt failed"}
     return fallback_func
 
-def describe_funcs(llm, parsed_code):
-    (src, tree) = parsed_code
+def describe_funcs(llm, tree_reader):
     system = "Your task is to describe functions in source code. Always include the arguments of the function if present."
     prompt = ChatPromptTemplate.from_messages([("system", system), ("human", "{input}")])
 
@@ -103,33 +102,33 @@ def describe_funcs(llm, parsed_code):
     # related issue:
     # https://github.com/langchain-ai/langchain/discussions/24309
     func_llm = prompt | llm.with_structured_output(FunctionDescription)
-    return pass_batch_to_llm(func_llm, get_definitions(tree, definition_type="function_definition"), __get_fallback_func_describer(llm))
+    return pass_batch_to_llm(func_llm, tree_reader.get_functions(), __get_fallback_func_describer(llm))
 
 def describe_file_classes(llm, filepath):
     return describe_classes(llm, parse_code_file(filepath))
 
-def describe_classes(llm, parsed_code):
-    (src, tree) = parsed_code
+
+def describe_classes(llm, tree_reader):
     builder = ClassFewShotPromptBuilder()
     prompt = builder.create_prompt()
     few_shot_llm = prompt | llm.with_structured_output(
         ClassDescription, method="json_mode")
-    return pass_batch_to_llm(few_shot_llm, get_definitions(
-        tree, definition_type="class_definition"), __get_fallback_class_describer(llm))
+    inputs = [{'input': given_class} for given_class in tree_reader.get_classes()]
+    return pass_batch_to_llm(few_shot_llm, inputs, __get_fallback_class_describer(llm))
 
 
 def describe_file(llm, filepath, include_funcs=True,
         include_classes=True, include_overview=True,
         include_imports=True) -> FileDoc:
-    parsed_code = parse_code_file(filepath)
+    tree_reader = parse_code_file(filepath)
     filedoc_args = {"name": filepath, "classes": [], "funcs": [], "imports": []}
     if include_imports:
         base_path = os.path.split(filepath)[0]
-        filedoc_args["imports"] = parse_python_imports(parsed_code[1], base_path) 
+        filedoc_args["imports"] = tree_reader.get_imports(base_path)
     if include_classes:
-        filedoc_args["classes"] = describe_classes(llm, parsed_code)
+        filedoc_args["classes"] = describe_classes(llm, tree_reader)
     if include_funcs:
-        filedoc_args["funcs"] = describe_funcs(llm, parsed_code)
+        filedoc_args["funcs"] = describe_funcs(llm, tree_reader)
     if include_overview:
         filedoc_args["overview"] = generate_file_overview(llm, filedoc_args["classes"], filedoc_args["funcs"])
     return FileDoc(**filedoc_args)
