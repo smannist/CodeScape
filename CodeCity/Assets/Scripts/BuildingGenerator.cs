@@ -116,7 +116,7 @@ public class BuildingGenerator : MonoBehaviour
         int floorCount = classes?.Length ?? 0;
         for (int floorIndx = 0; floorIndx < floorCount; floorIndx++){
             Vector3 floorPosition = buildingPosition + new Vector3(0, floorIndx * (cubeSize.y + spacing), 0);
-            Quaternion rotation = Quaternion.Euler(new Vector3(0, 45, 0)); // Set rotation (e.g., 45 degrees on the Y-axis)
+            Quaternion rotation = Quaternion.Euler(new Vector3(0, 20, 0)); // Set rotation (e.g., 45 degrees on the Y-axis)
             GameObject floor = Instantiate(floorPrefab, floorPosition, rotation, building.transform);
             
             floor.GetComponent<Floor>().classObj = classes[floorIndx];
@@ -130,25 +130,11 @@ public class BuildingGenerator : MonoBehaviour
 
     }
 
-    void addFloorClickHandler(GameObject floor)
-    {
-        // Add a collider to each floor to detect clicks
-        BoxCollider floorCollider = floor.GetComponent<BoxCollider>();
-        if (floorCollider == null)
-        {
-            floorCollider = floor.AddComponent<BoxCollider>();
-        }
-        // Set the collider as a trigger so that we can detect clicks without physics interference
-        floorCollider.isTrigger = true;
-        // Attach the click handling script to each floor
-        floor.AddComponent<FloorClickHandler>();
-    }
 
     void AddBuildingLabel(GameObject building, Vector3 buildingPosition, string name)
     {
         // Create a new GameObject for the TextMespositionhPro text
         GameObject textObject = new GameObject("FloorLabel");
-        textObject.transform.position = buildingPosition;
 
         // Add a TextMeshPro component to the object
         TextMeshPro textMeshPro = textObject.AddComponent<TextMeshPro>();
@@ -160,7 +146,7 @@ public class BuildingGenerator : MonoBehaviour
         textMeshPro.alignment = TextAlignmentOptions.Center;
         textMeshPro.color = Color.black;
 
-        Vector3 labelPosition = new Vector3( buildingPosition.x, buildingPosition.y - cubeSize.y,  buildingPosition.z);
+        Vector3 labelPosition = new Vector3( buildingPosition.x, buildingPosition.y - cubeSize.y,  buildingPosition.z) - 2*(floorPrefab.transform.forward-floorPrefab.transform.right);
         textObject.transform.position = labelPosition;
         LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
 

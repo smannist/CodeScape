@@ -9,9 +9,12 @@ public class Floor : MonoBehaviour
     public Class classObj;
     
 	void Start(){
-		//set label to mach classObj
-		TextMeshPro textMeshPro = this.gameObject.GetComponentInChildren<TextMeshPro>();
-		textMeshPro.text = classObj.name;
+        //set label to mach classObj
+        TextMeshPro[] textMeshPro = this.gameObject.GetComponentsInChildren<TextMeshPro>();
+        for(int i = 0;i<textMeshPro.Length;i++)
+        {
+        textMeshPro[i].text = classObj.name;
+        }
 	}
 	
     void OnClick(){
