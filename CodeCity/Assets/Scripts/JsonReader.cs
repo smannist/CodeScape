@@ -59,6 +59,7 @@ public class JsonReader : MonoBehaviour
                     break;
                 case UnityWebRequest.Result.Success:
                     fileData = JsonConvert.DeserializeObject<FileData>(webRequest.downloadHandler.text);
+                    Globals.docs = fileData;
                     fileLoaded = true;
                     break;
             }
