@@ -65,6 +65,7 @@
     <Compile Include="Assets\Scripts\Globals.cs" />
     <Compile Include="Assets\Scripts\BuildingGenerator.cs" />
     <Compile Include="Assets\Scripts\AppBuilder.cs" />
+    <Compile Include="Assets\Scripts\FunctionFloor.cs" />
     <Compile Include="Assets\Scripts\CameraZoom.cs" />
     <Compile Include="Assets\Scripts\Floor.cs" />
     <Compile Include="Assets\Scripts\RoomInterior.cs" />
