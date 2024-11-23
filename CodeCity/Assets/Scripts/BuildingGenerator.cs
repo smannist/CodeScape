@@ -129,8 +129,8 @@ public class BuildingGenerator : MonoBehaviour
         
         // Function floor
         if(fileobj?.functions.Length > 0){
-            Vector3 floorPosition = buildingPosition + new Vector3(0, floorCount * (cubeSize.y + spacing) + 1, 0);
-            GameObject floor = Instantiate(funcFloorPrefab, floorPosition, funcFloorPrefab.transform.rotation, building.transform);
+            Vector3 floorPosition = buildingPosition + new Vector3(0, floorCount * (cubeSize.y + spacing), 0);
+            GameObject floor = Instantiate(funcFloorPrefab, floorPosition, Quaternion.identity, building.transform);
             SetObjectColor(floor, buildingColor);
             floor.GetComponent<FunctionFloor>().functions = fileobj.functions;
             floor.GetComponent<FunctionFloor>().filename = fileobj.name;
