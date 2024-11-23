@@ -27,7 +27,8 @@ public class Floor : MonoBehaviour
     void OnDoubleClick()
     {
         // Enter floor
-        Globals.enteredFloor = classObj;
+        Globals.floorContents = classObj.functions;
+        Globals.floorDescription = classObj.name + "\n" + classObj.description;
         Globals.floorColor = this.gameObject.GetComponent<Renderer>().material.color;
         SceneManager.LoadScene("FloorInterior");   
     }

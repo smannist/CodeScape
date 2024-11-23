@@ -491,6 +491,8 @@ MonoBehaviour:
   fontShader: {fileID: 4800000, guid: a02a7d8c237544f1962732b55a9aebf1, type: 3}
   floorPrefab: {fileID: 9090357830613040286, guid: cc9dc8016ef5f27b6afcb7e91acdbf5b,
     type: 3}
+  funcFloorPrefab: {fileID: 1922026657921395844, guid: 67ed2736db7532c2faa7f443e9ea7cdd,
+    type: 3}
 --- !u!114 &770161959
 MonoBehaviour:
   m_ObjectHideFlags: 0

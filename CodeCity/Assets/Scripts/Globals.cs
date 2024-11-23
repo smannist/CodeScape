@@ -10,7 +10,8 @@ public static class Globals
 	//contains the data read from JSON
 	public static FileData docs;
 	
-	//store info about which floor was entered when moving to FloorInterior
-	public static Class enteredFloor;
+	//stores info about which floor was entered when moving to FloorInterior
+	public static string floorDescription;
+	public static Function[] floorContents;
 	public static Color floorColor;
 }

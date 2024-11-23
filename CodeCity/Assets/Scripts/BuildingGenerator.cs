@@ -29,6 +29,7 @@ public class BuildingGenerator : MonoBehaviour
 
     public Shader fontShader;
     public GameObject floorPrefab;
+    public GameObject funcFloorPrefab;
 
     // Start method to generate the building
     public void StartCityGeneration()
@@ -94,24 +95,26 @@ public class BuildingGenerator : MonoBehaviour
     void GenerateBuilding(File FileObject, Vector3 position)
     {
         Class[] classes = FileObject?.classes;
+        Function[] functions = FileObject?.functions;
         int stories = classes?.Length ?? 0;
         LogFileWriter.WriteLog(FileObject.name, "Floor count", stories);
 
-        if (stories <= 0)//TO DO: need to change this logic when functions without classes are displayed
+        if (stories <= 0 && functions.Length == 0)
         {
             return;
         }
         GameObject building = new GameObject("Building");
         building.tag = "Building";
         AddBuildingLabel(building, position, FileObject.name);
-        GenerateFloors(building, position, classes);
-
+        GenerateFloors(building, position, FileObject);
+        
         // Set the parent of the building to this GameObject for organization
         building.transform.parent = this.transform;
     }
 
-    void GenerateFloors(GameObject building, Vector3 buildingPosition, Class[] classes)
+    void GenerateFloors(GameObject building, Vector3 buildingPosition, File fileobj)
     {
+        Class[] classes = fileobj?.classes;
         Color buildingColor = new Color(Random.value, Random.value, Random.value);
         int floorCount = classes?.Length ?? 0;
         for (int floorIndx = 0; floorIndx < floorCount; floorIndx++){
@@ -121,15 +124,28 @@ public class BuildingGenerator : MonoBehaviour
             
             floor.GetComponent<Floor>().classObj = classes[floorIndx];
             floor.transform.localScale = cubeSize;
-            Renderer floorRenderer = floor.GetComponent<Renderer>();
-            if (floorRenderer != null)
-            {
-                floorRenderer.material.color = buildingColor;
-            }
+            SetObjectColor(floor, buildingColor);
         }
-
+        
+        // Function floor
+        if(fileobj?.functions.Length > 0){
+            Vector3 floorPosition = buildingPosition + new Vector3(0, floorCount * (cubeSize.y + spacing) + 1, 0);
+            GameObject floor = Instantiate(funcFloorPrefab, floorPosition, funcFloorPrefab.transform.rotation, building.transform);
+            SetObjectColor(floor, buildingColor);
+            floor.GetComponent<FunctionFloor>().functions = fileobj.functions;
+            floor.GetComponent<FunctionFloor>().filename = fileobj.name;
+            floor.GetComponent<FunctionFloor>().fileOverview = fileobj.overview;
+        }
     }
 
+    void SetObjectColor(GameObject obj, Color color)
+    {
+        Renderer renderer = obj.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            renderer.material.color = color;
+        }
+    }
 
     void AddBuildingLabel(GameObject building, Vector3 buildingPosition, string name)
     {
