@@ -8,9 +8,10 @@ from similarity_graph import create_code_graph, plot_graph
 from langchain_groq import ChatGroq
 from langchain.globals import set_debug
 from dotenv import load_dotenv
+from parsing import is_file_parseable
 
 def describe_repo(llm, cli_args):
-    code_files = list_files_if(cli_args["repo_path"], lambda name: name.endswith(".py"))
+    code_files = list_files_if(cli_args["repo_path"], is_file_parseable)
 
     code_docs = [describe_file(llm, file, 
         include_funcs="function" in cli_args["types"],

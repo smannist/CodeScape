@@ -10,7 +10,14 @@ import documentation from "../output.json";
 
 const App = () => {
   return (
-    <div style={{ display: "flex", height: "100vh", flexDirection: "column" }}>
+    <div
+      style={{
+        display: "flex",
+        height: "100vh",
+        flexDirection: "column",
+        overflow: "auto",
+      }}
+    >
       <div style={{ display: "flex", flex: 1 }}>
         <SideMenu documentation={documentation} />
         <div style={{ flex: 1, padding: "20px" }}>
@@ -27,10 +34,7 @@ const App = () => {
               path="/function/:functionName"
               element={<FunctionDocDisplay documentation={documentation} />}
             />
-            <Route
-              path="/codecity"
-              element={<CodeCity documentation={documentation} />}
-            />
+            <Route path="/codecity" element={<CodeCity />} />
           </Routes>
         </div>
       </div>

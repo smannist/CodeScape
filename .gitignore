@@ -13,3 +13,6 @@ test_file2.py
 /CodeCity/Logs
 /CodeCity/.vs
 /docweb/build
+
+# Allow output.json for deployment until better solutions are found
+!docweb/public/output.json

@@ -15,18 +15,19 @@ public class InteriorGenerator : MonoBehaviour
 	//transform of this object is used as the starting point of the row
 	public GameObject[] doorRowStarts;
 	
-	private Class floorClass;
+	
+	private Function[] functions;
+	
 	// Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        floorClass = Globals.enteredFloor;
+        functions = Globals.floorContents;
 		
-		//Set text on sign
-		descriptionField.GetComponent<TMPro.TMP_Text>().text = floorClass.name + "\n" + floorClass.description;
+		descriptionField.GetComponent<TMPro.TMP_Text>().text = Globals.floorDescription;
 		floor.GetComponent<Renderer>().material.color = Globals.floorColor;
 		
 		float maxDoorsPerWall = 8;
-		int doorsLeft = floorClass.methods.Length;
+		int doorsLeft = functions.Length;
 		int doorIndex = 0;
 		for (int row = 0;row<4 && doorsLeft > 0;row++){
 			Transform rowStart = doorRowStarts[row].transform;
@@ -44,8 +45,8 @@ public class InteriorGenerator : MonoBehaviour
 			GameObject obj = Instantiate(doorObject, pos, rotation);
 			obj.transform.parent = transform;
 			
-			string name = floorClass.methods[i + firstFuncIdx].name;
-			string desc = floorClass.methods[i + firstFuncIdx].description;
+			string name = functions[i + firstFuncIdx].name;
+            string desc = functions[i + firstFuncIdx].description;
             obj.GetComponentInChildren<TMPro.TextMeshPro>().text = name;
 
             // Add the DoorHandler script

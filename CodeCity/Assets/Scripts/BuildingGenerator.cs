@@ -29,6 +29,7 @@ public class BuildingGenerator : MonoBehaviour
 
     public Shader fontShader;
     public GameObject floorPrefab;
+    public GameObject funcFloorPrefab;
 
     // Start method to generate the building
     public void StartCityGeneration()
@@ -94,61 +95,62 @@ public class BuildingGenerator : MonoBehaviour
     void GenerateBuilding(File FileObject, Vector3 position)
     {
         Class[] classes = FileObject?.classes;
+        Function[] functions = FileObject?.functions;
         int stories = classes?.Length ?? 0;
         LogFileWriter.WriteLog(FileObject.name, "Floor count", stories);
 
-        if (stories <= 0)//TO DO: need to change this logic when functions without classes are displayed
+        if (stories <= 0 && functions.Length == 0)
         {
             return;
         }
         GameObject building = new GameObject("Building");
         building.tag = "Building";
         AddBuildingLabel(building, position, FileObject.name);
-        GenerateFloors(building, position, classes);
-
+        GenerateFloors(building, position, FileObject);
+        
         // Set the parent of the building to this GameObject for organization
         building.transform.parent = this.transform;
     }
 
-    void GenerateFloors(GameObject building, Vector3 buildingPosition, Class[] classes)
+    void GenerateFloors(GameObject building, Vector3 buildingPosition, File fileobj)
     {
+        Class[] classes = fileobj?.classes;
         Color buildingColor = new Color(Random.value, Random.value, Random.value);
         int floorCount = classes?.Length ?? 0;
         for (int floorIndx = 0; floorIndx < floorCount; floorIndx++){
             Vector3 floorPosition = buildingPosition + new Vector3(0, floorIndx * (cubeSize.y + spacing), 0);
-            Quaternion rotation = Quaternion.Euler(new Vector3(0, 45, 0)); // Set rotation (e.g., 45 degrees on the Y-axis)
+            Quaternion rotation = Quaternion.Euler(new Vector3(0, 20, 0)); // Set rotation (e.g., 45 degrees on the Y-axis)
             GameObject floor = Instantiate(floorPrefab, floorPosition, rotation, building.transform);
             
             floor.GetComponent<Floor>().classObj = classes[floorIndx];
             floor.transform.localScale = cubeSize;
-            Renderer floorRenderer = floor.GetComponent<Renderer>();
-            if (floorRenderer != null)
-            {
-                floorRenderer.material.color = buildingColor;
-            }
+            SetObjectColor(floor, buildingColor);
         }
-
+        
+        // Function floor
+        if(fileobj?.functions.Length > 0){
+            Vector3 floorPosition = buildingPosition + new Vector3(0, floorCount * (cubeSize.y + spacing), 0);
+            GameObject floor = Instantiate(funcFloorPrefab, floorPosition, Quaternion.identity, building.transform);
+            SetObjectColor(floor, buildingColor);
+            floor.GetComponent<FunctionFloor>().functions = fileobj.functions;
+            floor.GetComponent<FunctionFloor>().filename = fileobj.name;
+            floor.GetComponent<FunctionFloor>().fileOverview = fileobj.overview;
+        }
     }
 
-    void addFloorClickHandler(GameObject floor)
+    void SetObjectColor(GameObject obj, Color color)
     {
-        // Add a collider to each floor to detect clicks
-        BoxCollider floorCollider = floor.GetComponent<BoxCollider>();
-        if (floorCollider == null)
+        Renderer renderer = obj.GetComponent<Renderer>();
+        if (renderer != null)
         {
-            floorCollider = floor.AddComponent<BoxCollider>();
+            renderer.material.color = color;
         }
-        // Set the collider as a trigger so that we can detect clicks without physics interference
-        floorCollider.isTrigger = true;
-        // Attach the click handling script to each floor
-        floor.AddComponent<DoorClickHandler>();
     }
 
     void AddBuildingLabel(GameObject building, Vector3 buildingPosition, string name)
     {
         // Create a new GameObject for the TextMespositionhPro text
         GameObject textObject = new GameObject("FloorLabel");
-        textObject.transform.position = buildingPosition;
 
         // Add a TextMeshPro component to the object
         TextMeshPro textMeshPro = textObject.AddComponent<TextMeshPro>();
@@ -160,7 +162,7 @@ public class BuildingGenerator : MonoBehaviour
         textMeshPro.alignment = TextAlignmentOptions.Center;
         textMeshPro.color = Color.black;
 
-        Vector3 labelPosition = new Vector3( buildingPosition.x, buildingPosition.y - cubeSize.y,  buildingPosition.z);
+        Vector3 labelPosition = new Vector3( buildingPosition.x, buildingPosition.y - cubeSize.y,  buildingPosition.z) - 2*(floorPrefab.transform.forward-floorPrefab.transform.right);
         textObject.transform.position = labelPosition;
         LogFileWriter.WriteLog($"Building label position: x={labelPosition.x} y={labelPosition.y} z={labelPosition.z}");
 
