@@ -9,9 +9,12 @@ public class Floor : MonoBehaviour
     public Class classObj;
     
 	void Start(){
-		//set label to mach classObj
-		TextMeshPro textMeshPro = this.gameObject.GetComponentInChildren<TextMeshPro>();
-		textMeshPro.text = classObj.name;
+        //set label to mach classObj
+        TextMeshPro[] textMeshPro = this.gameObject.GetComponentsInChildren<TextMeshPro>();
+        for(int i = 0;i<textMeshPro.Length;i++)
+        {
+        textMeshPro[i].text = classObj.name;
+        }
 	}
 	
     void OnClick(){
@@ -24,7 +27,8 @@ public class Floor : MonoBehaviour
     void OnDoubleClick()
     {
         // Enter floor
-        Globals.enteredFloor = classObj;
+        Globals.floorContents = classObj.methods;
+        Globals.floorDescription = classObj.name + "\n" + classObj.description;
         Globals.floorColor = this.gameObject.GetComponent<Renderer>().material.color;
         SceneManager.LoadScene("FloorInterior");   
     }
