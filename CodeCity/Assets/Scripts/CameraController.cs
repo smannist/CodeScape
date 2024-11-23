@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CameraController : MonoBehaviour
 {
@@ -32,10 +33,12 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(allowCameraControl){
-            handleMouseMovements();
-        }
-        handleClicks();
+        
+            if (allowCameraControl)
+            {
+                handleMouseMovements();
+            }
+            handleClicks();
     }
     
     void handleMouseMovements(){
@@ -44,39 +47,42 @@ public class CameraController : MonoBehaviour
     }
 
 	void handleClicks(){
-        // Detect mouse clicks (or taps on mobile devices)
-        if (Input.GetMouseButtonDown(0)) // Left mouse click
+        if (SceneManager.GetActiveScene().name == "SampleScene")
         {
-            Debug.Log("Mouse clicked in the view at: " + Input.mousePosition);
-            // Convert the mouse position to a ray from the camera
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            // Perform the raycast and check if it hits any object
-            if (Physics.Raycast(ray, out hit))
+            // Detect mouse clicks (or taps on mobile devices)
+            if (Input.GetMouseButtonDown(0)) // Left mouse click
             {
-                // Get object that was hit by ray
-                GameObject hitObj = hit.collider.gameObject;
-                
-                float currentTime = Time.time;
-                if (currentTime - lastClickTime <= doubleClickThreshold)
+                Debug.Log("Mouse clicked in the view at: " + Input.mousePosition);
+                // Convert the mouse position to a ray from the camera
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                RaycastHit hit;
+
+                // Perform the raycast and check if it hits any object
+                if (Physics.Raycast(ray, out hit))
                 {
-                    Debug.Log("Double-click detected on: " + hitObj.name + " (tag:" + hitObj.tag + ")");
-                    hitObj.SendMessage("OnDoubleClick", null, SendMessageOptions.DontRequireReceiver);
+                    // Get object that was hit by ray
+                    GameObject hitObj = hit.collider.gameObject;
+
+                    float currentTime = Time.time;
+                    if (currentTime - lastClickTime <= doubleClickThreshold)
+                    {
+                        Debug.Log("Double-click detected on: " + hitObj.name + " (tag:" + hitObj.tag + ")");
+                        hitObj.SendMessage("OnDoubleClick", null, SendMessageOptions.DontRequireReceiver);
+                    }
+                    else
+                    {
+                        Debug.Log("Single-click detected on: " + hitObj.name + " (tag:" + hitObj.tag + ")");
+                        hitObj.SendMessage("OnClick", null, SendMessageOptions.DontRequireReceiver);
+                    }
+
+                    // Update the last click time
+                    lastClickTime = currentTime;
                 }
                 else
                 {
-                    Debug.Log("Single-click detected on: " + hitObj.name + " (tag:" + hitObj.tag + ")");
-                    hitObj.SendMessage("OnClick", null, SendMessageOptions.DontRequireReceiver);
+                    Debug.Log("No object was hit by the ray.");
+                    ZoomOut();
                 }
-
-                // Update the last click time
-                lastClickTime = currentTime;
-            }
-            else
-            {
-                Debug.Log("No object was hit by the ray.");
-                ZoomOut();
             }
         }
 	}

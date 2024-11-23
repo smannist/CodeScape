@@ -141,7 +141,7 @@ public class BuildingGenerator : MonoBehaviour
         // Set the collider as a trigger so that we can detect clicks without physics interference
         floorCollider.isTrigger = true;
         // Attach the click handling script to each floor
-        floor.AddComponent<FloorClickHandler>();
+        floor.AddComponent<DoorClickHandler>();
     }
 
     void AddBuildingLabel(GameObject building, Vector3 buildingPosition, string name)

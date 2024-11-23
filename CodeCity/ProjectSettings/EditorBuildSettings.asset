@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/FloorInterior.unity
     guid: fa762cb758232f0ba910fe38065b71f6
+  - enabled: 1
+    path: Assets/Scenes/RoomInterior.unity
+    guid: 6054fe71d02b8ed4e9fd4d3faf0d1414
   m_configObjects:
     com.unity.xr.arfoundation.simulation_settings: {fileID: 11400000, guid: 4839e00d90bb978499a73411717e9e39,
       type: 2}
