@@ -34,10 +34,7 @@ const App = () => {
               path="/function/:functionName"
               element={<FunctionDocDisplay documentation={documentation} />}
             />
-            <Route
-              path="/codecity"
-              element={<CodeCity documentation={documentation} />}
-            />
+            <Route path="/codecity" element={<CodeCity />} />
           </Routes>
         </div>
       </div>
