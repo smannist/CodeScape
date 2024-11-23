@@ -10,6 +10,7 @@ import {
   Box,
   ListItemIcon,
   Icon,
+  SvgIconProps,
 } from "@mui/material";
 
 import { blue } from "@mui/material/colors";
@@ -23,11 +24,21 @@ import FileList from "./FileList";
 
 import { RepoDescription } from "../types/description";
 
-interface Props {
+interface SideMenuProps {
   documentation: RepoDescription;
 }
 
-const SideMenuButton = ({ title, to_url, icon }: Props): JSX.Element => {
+interface SideMenuButtonProps {
+  title: string;
+  to_url: string;
+  icon: React.ElementType<SvgIconProps>;
+}
+
+const SideMenuButton = ({
+  title,
+  to_url,
+  icon,
+}: SideMenuButtonProps): JSX.Element => {
   return (
     <Box
       sx={{
@@ -51,7 +62,7 @@ const SideMenuButton = ({ title, to_url, icon }: Props): JSX.Element => {
   );
 };
 
-const SideMenu = ({ documentation }: Props): JSX.Element => {
+const SideMenu = ({ documentation }: SideMenuProps): JSX.Element => {
   return (
     <List
       sx={{
