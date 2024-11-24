@@ -22,10 +22,9 @@ public class JsonReader : MonoBehaviour
         filePath = Path.Combine(Directory.GetCurrentDirectory(), "output.json");
         LogFileWriter.WriteLog("filePath:" , filePath);
 #if UNITY_WEBGL
-        //StartCoroutine(LoadJsonOverHttp(filePath));
-        LoadJsonFile(filePath);
+        StartCoroutine(LoadJsonOverHttp(filePath));
 #else
-			LoadJsonFile(filePath);
+	    LoadJsonFile(filePath);
 #endif
     }
 
