@@ -15,7 +15,6 @@ const App = () => {
         display: "flex",
         height: "100vh",
         flexDirection: "column",
-        overflow: "auto",
       }}
     >
       <div style={{ display: "flex", flex: 1 }}>
