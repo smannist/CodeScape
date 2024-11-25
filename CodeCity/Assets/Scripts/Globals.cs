@@ -14,4 +14,5 @@ public static class Globals
 	public static string floorDescription;
 	public static Function[] floorContents;
 	public static Color floorColor;
+	public static Function enteredRoom;
 }

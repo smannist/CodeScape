@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class FloorClickHandler : MonoBehaviour
+public class DoorClickHandler : MonoBehaviour
 {
     // Reference to the main camera
     public Camera mainCamera;

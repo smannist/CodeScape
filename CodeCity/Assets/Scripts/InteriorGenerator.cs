@@ -1,6 +1,7 @@
 using UnityEngine;
 using Assets.Entities;
 using UnityEngine.SceneManagement;
+using Unity.VisualScripting;
 
 
 public class InteriorGenerator : MonoBehaviour
@@ -45,18 +46,52 @@ public class InteriorGenerator : MonoBehaviour
 			obj.transform.parent = transform;
 			
 			string name = functions[i + firstFuncIdx].name;
-			obj.GetComponentInChildren<TMPro.TextMeshPro>().text = name;
-		}
+            string desc = functions[i + firstFuncIdx].description;
+            obj.GetComponentInChildren<TMPro.TextMeshPro>().text = name;
+
+            // Add the DoorHandler script
+            DoorHandler roomGenerator = obj.AddComponent<DoorHandler>();
+            // Assign the function name to the door
+            roomGenerator.functionName = name;
+            roomGenerator.functionDesc = desc;
+        }
 	}
 
 
     // Update is called once per frame
-    void Update()
+    /*void Update()
     {
 		//return to city on click
         if (Input.GetMouseButtonDown(0))
         {
 			SceneManager.LoadScene("SampleScene");   
 		}
+    }*/
+    void Update()
+    {
+        // Detect left mouse click
+        if (Input.GetMouseButtonDown(0))
+        {
+            // Perform a raycast from the mouse position
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+
+            // Check if the raycast hits a collider
+            if (Physics.Raycast(ray, out hit))
+            {
+                // If the hit object has the DoorHandler component, let it handle the click
+                DoorHandler doorHandler = hit.collider.GetComponent<DoorHandler>();
+                if (doorHandler != null)
+                {
+                    // Let the DoorHandler script handle this click
+                   // doorHandler.OpenDoor();
+                    return; // Exit early to avoid executing the scene change logic
+                }
+            }
+
+            // If no door was clicked, return to the default scene
+            SceneManager.LoadScene("SampleScene");
+        }
     }
+ 
 }

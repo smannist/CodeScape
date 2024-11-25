@@ -21,11 +21,11 @@ public class JsonReader : MonoBehaviour
         // Assuming the .sln file is in the root project directory, we access it directly.
         filePath = Path.Combine(Directory.GetCurrentDirectory(), "output.json");
         LogFileWriter.WriteLog("filePath:" , filePath);
-        #if UNITY_WEBGL
-			StartCoroutine(LoadJsonOverHttp(filePath));
-		#else
-			LoadJsonFile(filePath);
-		#endif
+#if UNITY_WEBGL
+        StartCoroutine(LoadJsonOverHttp(filePath));
+#else
+	    LoadJsonFile(filePath);
+#endif
     }
 
 	
